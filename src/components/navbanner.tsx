@@ -1,4 +1,4 @@
-import { View, Text, Pressable, StyleSheet } from "react-native";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 type BottomBarProps = {
   onHomePress?: () => void;
@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
     fontWeight: "100",
     fontSize: 70,
     lineHeight: 80,
-    justifyContent: "center"
+    justifyContent: "center",
   },
   addButton: {
     width: 80,
@@ -75,6 +75,6 @@ const styles = StyleSheet.create({
     fontWeight: "100",
     fontSize: 130,
     lineHeight: 105,
-    justifyContent: "center"
+    justifyContent: "center",
   },
 });
