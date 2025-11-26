@@ -1,9 +1,8 @@
+import { taskService } from "@/src/services/taskService";
 import { List } from "@/src/types/list";
-import { Task } from "@/src/types/task";
 import { useRouter } from "expo-router";
 import React, { useMemo } from "react";
 import { Pressable, Text, View } from "react-native";
-import data from "../../../src/data/data.json";
 import TaskCard from "../taskCard";
 import styles from "./styles";
 
@@ -11,10 +10,10 @@ export default function ListCard({ list }: { list: List }) {
   const router = useRouter();
 
   const headerBackground = list.color;
-  const bodyBackground = headerBackground + "4D"; //30% opacity
+  const bodyBackground = headerBackground + "4D";
 
   const tasksForList = useMemo(
-    () => (data.tasks as Task[]).filter((t) => t.listId === list.id),
+    () => taskService.getTasksByListId(list.id),
     [list.id],
   );
 

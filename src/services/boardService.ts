@@ -8,7 +8,6 @@ export const boardService = {
   addBoard(name: string, description: string, thumbnailPhoto: string) {
     const boards = dataService.getBoards();
 
-    // Generate unique ID using the dataService helper
     const newId = dataService.getNextId("boards");
 
     const newBoard = {

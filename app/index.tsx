@@ -1,3 +1,3 @@
-import Main from "@/src/views/boards/main";
+import BoardsMain from "@/src/views/boards/main";
 
-export default Main;
+export default BoardsMain;
