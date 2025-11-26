@@ -26,7 +26,10 @@ export default function RootLayout() {
           options={({ route }) => ({
             headerTitle: "Lists",
             headerRight: () => (
-              <AddButton scope="list" parentId={(route.params as any)?.boardId} />
+              <AddButton
+                scope="list"
+                parentId={(route.params as any)?.boardId}
+              />
             ),
           })}
         />
@@ -37,7 +40,10 @@ export default function RootLayout() {
           options={({ route }) => ({
             headerTitle: "Tasks",
             headerRight: () => (
-              <AddButton scope="task" parentId={(route.params as any)?.listId} />
+              <AddButton
+                scope="task"
+                parentId={(route.params as any)?.listId}
+              />
             ),
           })}
         />
