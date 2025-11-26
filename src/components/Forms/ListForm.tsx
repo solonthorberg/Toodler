@@ -1,22 +1,10 @@
 import React, { useState } from "react";
-import {
-  Alert,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Alert, Pressable, Text, TextInput, View } from "react-native";
+import styles from "./styles";
 
 interface ListFormProps {
   boardId: number;
-  onCreate: (payload: {
-    scope: "list";
-    boardId: number;
-    name: string;
-    color: string;
-    createdAt: number;
-  }) => void;
+  onCreate: (payload: { boardId: number; name: string; color: string }) => void;
   onClose?: () => void;
 }
 
@@ -30,7 +18,6 @@ export default function ListForm({
   const [loading, setLoading] = useState(false);
 
   const handleCreate = () => {
-    // Validate input
     if (!name.trim()) {
       Alert.alert("Error", "List name is required");
       return;
@@ -40,21 +27,17 @@ export default function ListForm({
       setLoading(true);
 
       const payload = {
-        scope: "list" as const,
         boardId,
         name: name.trim(),
-        color: color.trim() || "#3B82F6", // Default blue color
-        createdAt: Date.now(),
+        color: color.trim() || "#3B82F6",
       };
 
       console.log("Creating list with payload:", payload);
       onCreate(payload);
 
-      // Reset form
       setName("");
       setColor("");
 
-      // Close modal
       onClose?.();
     } catch (error) {
       console.error("Error creating list:", error);
@@ -126,45 +109,3 @@ export default function ListForm({
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  title: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 16,
-    textAlign: "center",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 12,
-    fontSize: 16,
-    minHeight: 44,
-    backgroundColor: "#fff",
-  },
-  row: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    gap: 8,
-    marginTop: 16,
-  },
-  btn: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 10,
-    minWidth: 80,
-    alignItems: "center",
-  },
-  ghost: {
-    backgroundColor: "#eee",
-  },
-  primary: {
-    backgroundColor: "#111",
-  },
-  btnText: {
-    fontSize: 16,
-    fontWeight: "500",
-  },
-});

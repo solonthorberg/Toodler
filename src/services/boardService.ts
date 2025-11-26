@@ -17,23 +17,16 @@ export const boardService = {
       thumbnailPhoto: thumbnailPhoto.trim(),
     };
 
-    console.log("Creating new board:", newBoard);
-
     const updatedBoards = [...boards, newBoard];
     dataService.setBoards(updatedBoards);
 
-    console.log("Board created successfully:", newBoard);
+    console.log("Board created:", newBoard);
     return newBoard;
   },
 
   updateBoard(id: number, updates: any) {
     const boards = dataService.getBoards();
     const boardIndex = boards.findIndex((board) => board.id === id);
-
-    if (boardIndex === -1) {
-      console.error("Board not found:", id);
-      return null;
-    }
 
     const updatedBoard = { ...boards[boardIndex], ...updates };
     boards[boardIndex] = updatedBoard;
@@ -45,11 +38,6 @@ export const boardService = {
   deleteBoard(id: number) {
     const boards = dataService.getBoards();
     const filteredBoards = boards.filter((board) => board.id !== id);
-
-    if (filteredBoards.length === boards.length) {
-      console.error("Board not found for deletion:", id);
-      return false;
-    }
 
     dataService.setBoards(filteredBoards);
     return true;

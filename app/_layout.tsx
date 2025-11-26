@@ -17,7 +17,6 @@ export default function RootLayout() {
           }}
         />
 
-        {/* Lists screen */}
         <Stack.Screen
           name="lists/[boardId]"
           options={({ route }) => ({
@@ -25,7 +24,6 @@ export default function RootLayout() {
           })}
         />
 
-        {/* Tasks screen */}
         <Stack.Screen
           name="tasks/[listId]"
           options={({ route }) => ({

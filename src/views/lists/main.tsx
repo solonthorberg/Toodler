@@ -1,10 +1,11 @@
-import AddButton from "@/src/components/Buttons/AddButton";
-import ListForm from "@/src/components/Buttons/ListForm";
+import AddButton from "@/src/components/Button/AddButton";
+import ListForm from "@/src/components/Forms/ListForm";
 import ListCard from "@/src/components/listCard/listCard";
 import { boardService } from "@/src/services/boardService";
 import { listService } from "@/src/services/listService";
 import { List } from "@/src/types/list";
-import { useLocalSearchParams } from "expo-router";
+import sharedStyles from "@/src/views/styles";
+import { useFocusEffect, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
 
@@ -12,56 +13,35 @@ export default function ListsMain() {
   const { boardId } = useLocalSearchParams();
   const id = Number(boardId);
   const [lists, setLists] = useState<List[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const currentBoard = boardService.getBoardById(id);
 
   const loadListsForBoard = useCallback(() => {
     try {
-      setLoading(true);
-      const data = listService.getListsByBoardId(id) as List[];
+      const data = listService.getListsByBoardId(id);
       setLists(data);
-      console.log("Lists loaded for board", id, ":", data);
     } catch (error) {
       console.error("Error loading lists:", error);
       setLists([]);
-    } finally {
-      setLoading(false);
     }
   }, [id]);
 
   const handleCreateList = useCallback(
-    (payload: {
-      scope: "list";
-      boardId: number;
-      name: string;
-      color: string;
-      createdAt: number;
-    }) => {
+    (payload: { boardId: number; name: string; color: string }) => {
       try {
-        console.log("Creating list with payload:", payload);
-
         const newList = listService.addList(
           payload.boardId,
           payload.name,
           payload.color,
         );
 
-        console.log("List created successfully:", newList);
-
         setLists((prevLists) => {
           const exists = prevLists.some((list) => list.id === newList.id);
           if (exists) {
-            console.warn("List already exists in state:", newList.id);
             return prevLists;
           }
-
-          const updatedLists = [...prevLists, newList];
-          console.log(
-            "Updated lists state:",
-            updatedLists.map((l) => ({ id: l.id, name: l.name })),
-          );
-          return updatedLists;
+          return [...prevLists, newList];
         });
       } catch (error) {
         console.error("Error creating list:", error);
@@ -74,35 +54,37 @@ export default function ListsMain() {
     loadListsForBoard();
   }, [loadListsForBoard]);
 
-  if (loading) {
-    return (
-      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-        <Text>Loading lists...</Text>
-      </View>
-    );
-  }
+  useFocusEffect(
+    useCallback(() => {
+      setRefreshKey((prev) => prev + 1);
+    }, []),
+  );
+
+  const handleListDeleted = useCallback(() => {
+    loadListsForBoard();
+  }, [loadListsForBoard]);
 
   return (
-    <View style={{ flex: 1, padding: 16, paddingBottom: 80 }}>
+    <View style={sharedStyles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <Text style={{ fontSize: 28, fontWeight: "800", marginBottom: 12 }}>
+        <Text style={sharedStyles.subtitle}>
           {currentBoard?.name ?? "Lists"}
         </Text>
 
         {lists.length === 0 ? (
-          <View
-            style={{
-              padding: 32,
-              alignItems: "center",
-              opacity: 0.6,
-            }}
-          >
-            <Text style={{ fontSize: 16, textAlign: "center" }}>
+          <View style={sharedStyles.emptyState}>
+            <Text style={sharedStyles.emptyText}>
               Looks empty... Create your first list!!
             </Text>
           </View>
         ) : (
-          lists.map((list) => <ListCard key={list.id} list={list} />)
+          lists.map((list) => (
+            <ListCard
+              key={`${list.id}-${refreshKey}`}
+              list={list}
+              onListDeleted={handleListDeleted}
+            />
+          ))
         )}
 
         <AddButton accessibilityLabel="Add list">

@@ -1,16 +1,11 @@
-import AddButton from "@/src/components/Buttons/AddButton";
-import BoardForm from "@/src/components/Buttons/BoardForm";
-import BoardCard from "@/src/components/boardCard";
+import BoardCard from "@/src/components/BoardCard/boardCard";
+import AddButton from "@/src/components/Button/AddButton";
+import BoardForm from "@/src/components/Forms/BoardForm";
 import { boardService } from "@/src/services/boardService";
+import { Board } from "@/src/types/board";
+import sharedStyles from "@/src/views/styles";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { ScrollView, Text, View } from "react-native";
-
-export interface Board {
-  id: number;
-  name: string;
-  description: string;
-  thumbnailPhoto: string;
-}
 
 export default function BoardsMain() {
   const [boards, setBoards] = useState<Board[]>([]);
@@ -35,10 +30,7 @@ export default function BoardsMain() {
 
   const handleCreateBoard = useCallback((payload: any) => {
     try {
-      console.log("Creating board with payload:", payload);
-
       if (!payload.name?.trim()) {
-        console.error("Board name is required");
         return;
       }
 
@@ -50,10 +42,6 @@ export default function BoardsMain() {
 
       setBoards((prevBoards) => {
         const updatedBoards = [...prevBoards, newBoard];
-        console.log(
-          "Updated boards state:",
-          updatedBoards.map((b) => ({ id: b.id, name: b.name })),
-        );
         return updatedBoards;
       });
     } catch (error) {
@@ -61,15 +49,34 @@ export default function BoardsMain() {
     }
   }, []);
 
+  const handleDeleteBoard = useCallback(
+    (boardId: number) => {
+      boardService.deleteBoard(boardId);
+      loadBoards();
+    },
+    [loadBoards],
+  );
+
   return (
-    <View style={{ flex: 1, padding: 16, paddingBottom: 80 }}>
+    <View style={sharedStyles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
-        <Text style={{ fontSize: 32, fontWeight: "800", marginBottom: 12 }}>
-          Boards
-        </Text>
-        {sortedBoards.map((board) => (
-          <BoardCard key={board.id.toString()} board={board} />
-        ))}
+        <Text style={sharedStyles.title}>Boards</Text>
+
+        {boards.length === 0 ? (
+          <View style={sharedStyles.emptyState}>
+            <Text style={sharedStyles.emptyText}>
+              No boards yet. Create your first board!!
+            </Text>
+          </View>
+        ) : (
+          sortedBoards.map((board) => (
+            <BoardCard
+              key={board.id.toString()}
+              board={{ ...board, description: board.description ?? "" }}
+              onDelete={handleDeleteBoard}
+            />
+          ))
+        )}
 
         <AddButton accessibilityLabel="Add board">
           <BoardForm onCreate={handleCreateBoard} />
