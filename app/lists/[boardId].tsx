@@ -1,6 +1,7 @@
 // app/lists/[boardId].tsx
-import ListCard, { List } from "@/src/components/listCard";
-import data from "@/src/data/data.json";
+import data from "@/data/data.json";
+import ListCard from "@/src/components/listCard/listCard";
+import { List } from "@/src/types/list";
 import { useLocalSearchParams } from "expo-router";
 import React, { useMemo } from "react";
 import { ScrollView, Text, View } from "react-native";

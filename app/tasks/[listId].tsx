@@ -23,7 +23,7 @@ export default function TasksScreen() {
     [numericListId],
   );
 
-  const currentList = (data.lists as any[]).find((l) => l.id === numericListId);
+  //const currentList = (data.lists as any[]).find((l) => l.id === numericListId);
 
   return (
     <View style={{ flex: 1, padding: 16, paddingBottom: 80 }}>
