@@ -1,9 +1,9 @@
 // app/lists/[boardId].tsx
-import React, { useMemo } from "react";
-import { View, Text, ScrollView } from "react-native";
-import { useLocalSearchParams } from "expo-router";
-import data from "@/data/data.json";
 import ListCard, { List } from "@/src/components/listCard";
+import data from "@/src/data/data.json";
+import { useLocalSearchParams } from "expo-router";
+import React, { useMemo } from "react";
+import { ScrollView, Text, View } from "react-native";
 
 export default function ListsScreen() {
   const { boardId } = useLocalSearchParams();
@@ -11,7 +11,7 @@ export default function ListsScreen() {
 
   const listsForBoard = useMemo(
     () => (data.lists as List[]).filter((l) => l.boardId === id),
-    [id]
+    [id],
   );
 
   const currentBoard = (data.boards as any[]).find((b) => b.id === id);
