@@ -1,5 +1,3 @@
-import { Redirect } from "expo-router";
+import Main from "@/src/views/main/main";
 
-export default function Index() {
-  return <Redirect href="/(boards)" />;
-}
+export default Main;
