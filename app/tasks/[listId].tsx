@@ -1,22 +1,10 @@
 import data from "@/data/data.json";
 import NavBanner from "@/src/components/navbanner";
 import TaskCard from "@/src/components/taskCard";
+import { Task } from "@/src/types/task";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useMemo } from "react";
-import {
-  Pressable,
-  ScrollView,
-  Text,
-  View,
-} from "react-native";
-
-type Task = {
-  id: number;
-  name: string;
-  description: string;
-  isFinished: boolean;
-  listId: number;
-};
+import { Pressable, ScrollView, Text, View } from "react-native";
 
 export default function TasksScreen() {
   const { listId } = useLocalSearchParams();
@@ -25,12 +13,10 @@ export default function TasksScreen() {
 
   const tasksForList = useMemo(
     () => (data.tasks as Task[]).filter((t) => t.listId === numericListId),
-    [numericListId]
+    [numericListId],
   );
 
-  const currentList = (data.lists as any[]).find(
-    (l) => l.id === numericListId
-  );
+  //const currentList = (data.lists as any[]).find((l) => l.id === numericListId);
 
   return (
     <View style={{ flex: 1, padding: 16, paddingBottom: 80 }}>

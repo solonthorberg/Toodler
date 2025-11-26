@@ -1,15 +1,8 @@
 // TaskCard component represents a single task item with its details and actions
 
+import { Task } from "@/src/types/task";
 import React from "react";
-import { View, Text, StyleSheet, Pressable } from "react-native";
-
-type Task = {
-  id: number;
-  name: string;
-  description: string;
-  isFinished: boolean;
-  listId: number;
-};
+import { Pressable, StyleSheet, Text, View } from "react-native";
 
 type Props = {
   task: Task;
