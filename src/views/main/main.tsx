@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, Pressable } from "react-native";
-import { Link } from "expo-router";
-import styles from "./styles";
-import seed from "@/data/data.json"; // loads boards, lists, tasks
 import BottomBar from "@/src/components/navbanner";
+import { Link } from "expo-router";
+import React, { useEffect, useState } from "react";
+import { Pressable, Text, View } from "react-native";
+import seed from "../../data/data.json"; // loads boards, lists, tasks
 
 type Task = {
   id: number;
