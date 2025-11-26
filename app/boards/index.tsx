@@ -1,15 +1,14 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { View, Text, ScrollView, Pressable } from "react-native";
-import data from "@/data/data.json";
+import seed from "@/data/data.json";
 import NavBanner from "@/src/components/navbanner";
 import BoardCard, { Board } from "@/src/components/boardCard";
 
 export default function BoardsMain() {
   const [boards, setBoards] = useState<Board[]>([]);
 
-  // Load boards from data.json on component mount
   useEffect(() => {
-    setBoards((data.boards as Board[]) ?? []);
+    setBoards((seed.boards as Board[]) ?? []);
   }, []);
 
   const sortedBoards = useMemo(
@@ -26,7 +25,6 @@ export default function BoardsMain() {
           <BoardCard key={b.id} board={b} />
         ))}
 
-        {/* Add Board box */}
         <Pressable
           onPress={() => console.log("Add new board")}
           style={{
@@ -42,14 +40,13 @@ export default function BoardsMain() {
             elevation: 2,
           }}
         >
-          <Text style={{ fontSize: 18, fontWeight: "600", color: "#555" }}>+ Add Board</Text>
+          <Text style={{ fontSize: 18, fontWeight: "600", color: "#555" }}>
+            + Add Board
+          </Text>
         </Pressable>
       </ScrollView>
 
-      <NavBanner
-        onBackPress={undefined}
-        onAddPress={() => console.log("Add new board")}
-      />
+      <NavBanner onBackPress={undefined} onAddPress={() => console.log("Add board")} />
     </View>
   );
 }
