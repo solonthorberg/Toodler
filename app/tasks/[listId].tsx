@@ -58,11 +58,8 @@ export default function TasksScreen() {
 
       {/* Bottom navigation bar */}
       <NavBanner
-        {...({
-          title: currentList?.name ?? "Tasks",
-          onBackPress: () => router.back(),
-          onAddPress: () => console.log("Add new task"),
-        } as any)}
+        onBackPress={() => router.back()}
+        onAddPress={() => console.log("Add new task")}
       />
     </View>
   );
