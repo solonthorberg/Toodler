@@ -1,10 +1,9 @@
-// src/components/listCard.tsx
-import data from "@/data/data.json";
 import { List } from "@/src/types/list";
 import { Task } from "@/src/types/task";
 import { useRouter } from "expo-router";
 import React, { useMemo } from "react";
 import { Pressable, Text, View } from "react-native";
+import data from "../../../src/data/data.json";
 import TaskCard from "../taskCard";
 import styles from "./styles";
 
