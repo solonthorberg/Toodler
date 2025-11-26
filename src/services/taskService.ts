@@ -22,23 +22,16 @@ export const taskService = {
       isFinished: false,
     };
 
-    console.log("Creating new task:", newTask);
-
     const updatedTasks = [...tasks, newTask];
     dataService.setTasks(updatedTasks);
 
-    console.log("Task created successfully:", newTask);
+    console.log("Task created:", newTask);
     return newTask;
   },
 
   updateTask(id: number, updates: any) {
     const tasks = dataService.getTasks();
     const taskIndex = tasks.findIndex((task) => task.id === id);
-
-    if (taskIndex === -1) {
-      console.error("Task not found:", id);
-      return null;
-    }
 
     const updatedTask = { ...tasks[taskIndex], ...updates };
     tasks[taskIndex] = updatedTask;
@@ -54,5 +47,12 @@ export const taskService = {
     }
 
     return this.updateTask(id, { isFinished: !task.isFinished });
+  },
+
+  deleteTask(taskId: number) {
+    const tasks = dataService.getTasks();
+    const filteredTasks = tasks.filter((task) => task.id !== taskId);
+    dataService.setTasks(filteredTasks);
+    return true;
   },
 };

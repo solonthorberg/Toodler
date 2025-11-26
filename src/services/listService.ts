@@ -25,12 +25,23 @@ export const listService = {
       color: color?.trim() || "#3B82F6",
     };
 
-    console.log("Creating new list:", newList);
-
     const updatedLists = [...lists, newList];
     dataService.setLists(updatedLists);
 
-    console.log("List created successfully:", newList);
+    console.log("List created:", newList);
     return newList;
+  },
+
+  deleteList(listId: number) {
+    const lists = dataService.getLists();
+    const filteredLists = lists.filter((list) => list.id !== listId);
+
+    dataService.setLists(filteredLists);
+
+    const tasks = dataService.getTasks();
+    const filteredTasks = tasks.filter((task) => task.listId !== listId);
+    dataService.setTasks(filteredTasks);
+
+    return true;
   },
 };

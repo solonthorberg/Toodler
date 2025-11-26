@@ -1,33 +1,25 @@
 import React, { useState } from "react";
-import {
-  Alert,
-  Pressable,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { Alert, Pressable, Text, TextInput, View } from "react-native";
+import styles from "./styles";
 
-interface TaskFormProps {
-  listId: number;
+interface BoardFormProps {
   onCreate: (payload: {
-    scope: "task";
-    listId: number;
     name: string;
     description: string;
-    createdAt: number;
+    thumbnailPhoto: string;
   }) => void;
   onClose?: () => void;
 }
 
-export default function TaskForm({ listId, onCreate, onClose }: TaskFormProps) {
+export default function BoardForm({ onCreate, onClose }: BoardFormProps) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
+  const [thumbnailPhoto, setThumbnailPhoto] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleCreate = () => {
     if (!name.trim()) {
-      Alert.alert("Error", "Task name is required");
+      Alert.alert("Error", "Board name is required");
       return;
     }
 
@@ -35,23 +27,22 @@ export default function TaskForm({ listId, onCreate, onClose }: TaskFormProps) {
       setLoading(true);
 
       const payload = {
-        scope: "task" as const,
-        listId,
         name: name.trim(),
         description: description.trim(),
-        createdAt: Date.now(),
+        thumbnailPhoto: thumbnailPhoto.trim(),
       };
 
-      console.log("Creating task with payload:", payload);
+      console.log("Creating board with payload:", payload);
       onCreate(payload);
 
       setName("");
       setDescription("");
+      setThumbnailPhoto("");
 
       onClose?.();
     } catch (error) {
-      console.error("Error creating task:", error);
-      Alert.alert("Error", "Failed to create task. Please try again.");
+      console.error("Error creating board:", error);
+      Alert.alert("Error", "Failed to create board. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -60,21 +51,22 @@ export default function TaskForm({ listId, onCreate, onClose }: TaskFormProps) {
   const handleCancel = () => {
     setName("");
     setDescription("");
+    setThumbnailPhoto("");
     onClose?.();
   };
 
   return (
     <>
-      <Text style={styles.title}>New Task</Text>
+      <Text style={styles.title}>New Board</Text>
 
       <TextInput
-        placeholder="Task name *"
+        placeholder="Board name *"
         placeholderTextColor="#888"
         value={name}
         onChangeText={setName}
         style={styles.input}
         editable={!loading}
-        maxLength={200}
+        maxLength={100}
         returnKeyType="next"
       />
 
@@ -85,9 +77,21 @@ export default function TaskForm({ listId, onCreate, onClose }: TaskFormProps) {
         onChangeText={setDescription}
         style={[styles.input, styles.multilineInput]}
         editable={!loading}
-        maxLength={1000}
+        maxLength={500}
         multiline
         numberOfLines={3}
+        returnKeyType="next"
+      />
+
+      <TextInput
+        placeholder="Thumbnail URL (optional)"
+        placeholderTextColor="#888"
+        value={thumbnailPhoto}
+        onChangeText={setThumbnailPhoto}
+        style={styles.input}
+        editable={!loading}
+        autoCapitalize="none"
+        autoCorrect={false}
         returnKeyType="done"
         onSubmitEditing={handleCreate}
       />
@@ -120,49 +124,3 @@ export default function TaskForm({ listId, onCreate, onClose }: TaskFormProps) {
     </>
   );
 }
-
-const styles = StyleSheet.create({
-  title: {
-    fontSize: 18,
-    fontWeight: "600",
-    marginBottom: 16,
-    textAlign: "center",
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: "#ddd",
-    borderRadius: 8,
-    padding: 12,
-    marginBottom: 12,
-    fontSize: 16,
-    minHeight: 44,
-    backgroundColor: "#fff",
-  },
-  multilineInput: {
-    minHeight: 80,
-    textAlignVertical: "top",
-  },
-  row: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    gap: 8,
-    marginTop: 16,
-  },
-  btn: {
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 10,
-    minWidth: 80,
-    alignItems: "center",
-  },
-  ghost: {
-    backgroundColor: "#eee",
-  },
-  primary: {
-    backgroundColor: "#111",
-  },
-  btnText: {
-    fontSize: 16,
-    fontWeight: "500",
-  },
-});

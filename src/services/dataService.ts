@@ -25,7 +25,6 @@ export const dataService = {
 
   setBoards(boards: any[]) {
     appData.boards = [...boards];
-    console.log("Data updated, boards count:", appData.boards.length);
   },
 
   setLists(lists: any[]) {
@@ -40,13 +39,5 @@ export const dataService = {
     const entities = appData[entityType];
     if (entities.length === 0) return 1;
     return Math.max(...entities.map((entity) => entity.id)) + 1;
-  },
-
-  resetData() {
-    appData = {
-      boards: [...initialData.boards],
-      lists: [...initialData.lists],
-      tasks: [...initialData.tasks],
-    };
   },
 };
