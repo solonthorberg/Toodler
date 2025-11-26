@@ -1,10 +1,17 @@
-import data from "@/data/data.json";
 import NavBanner from "@/src/components/navbanner";
 import TaskCard from "@/src/components/taskCard";
-import { Task } from "@/src/types/task";
+import data from "@/src/data/data.json";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useMemo } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
+
+type Task = {
+  id: number;
+  name: string;
+  description: string;
+  isFinished: boolean;
+  listId: number;
+};
 
 export default function TasksScreen() {
   const { listId } = useLocalSearchParams();

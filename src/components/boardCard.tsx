@@ -1,4 +1,3 @@
-import { Board } from "@/src/types/board";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import {
@@ -8,6 +7,13 @@ import {
   Text,
   View,
 } from "react-native";
+
+export type Board = {
+  id: number;
+  name: string;
+  description: string;
+  thumbnailPhoto?: string; // may be missing
+};
 
 export default function BoardCard({ board }: { board: Board }) {
   const router = useRouter();

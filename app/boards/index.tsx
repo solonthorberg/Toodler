@@ -1,9 +1,8 @@
-import seed from "@/data/data.json";
-import BoardCard from "@/src/components/boardCard";
+import BoardCard, { Board } from "@/src/components/boardCard";
 import NavBanner from "@/src/components/navbanner";
-import { Board } from "@/src/types/board";
 import React, { useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, Text, View } from "react-native";
+import seed from "../../src/data/data.json";
 
 export default function BoardsMain() {
   const [boards, setBoards] = useState<Board[]>([]);

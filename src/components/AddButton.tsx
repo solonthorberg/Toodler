@@ -1,13 +1,13 @@
+import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
   Modal,
-  View,
-  Text,
-  TextInput,
   Pressable,
   StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 
 type Scope = "board" | "list" | "task";
 

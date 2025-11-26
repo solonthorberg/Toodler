@@ -1,10 +1,10 @@
 // app/lists/[boardId].tsx
-import data from "@/data/data.json";
 import ListCard from "@/src/components/listCard/listCard";
 import { List } from "@/src/types/list";
 import { useLocalSearchParams } from "expo-router";
 import React, { useMemo } from "react";
 import { ScrollView, Text, View } from "react-native";
+import data from "../../src/data/data.json";
 
 export default function ListsScreen() {
   const { boardId } = useLocalSearchParams();
