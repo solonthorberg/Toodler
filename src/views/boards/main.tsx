@@ -1,5 +1,5 @@
 import BoardCard from "@/src/components/boardCard/boardCard";
-import AddButton from "@/src/components/button/addButton";
+import AddButton from "@/src/components/buttons/addButton";
 import BoardForm from "@/src/components/forms/boardForm";
 import { boardService } from "@/src/services/boardService";
 import { Board } from "@/src/types/board";
