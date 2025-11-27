@@ -63,4 +63,17 @@ export default StyleSheet.create({
     color: "#777",
     marginTop: 4,
   },
+  buttonContainer: {
+    flexDirection: "row",
+    gap: 6,
+  },
+
+  actionButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "rgba(0,0,0,0.1)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
 });

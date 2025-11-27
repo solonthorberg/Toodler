@@ -1,19 +1,32 @@
+import { Task } from "@/src/types/task";
 import React, { useState } from "react";
 import { Alert, Pressable, Text, TextInput, View } from "react-native";
 import styles from "./styles";
 
 interface TaskFormProps {
   listId: number;
-  onCreate: (payload: { name: string; description: string }) => void;
+  onCreate?: (payload: { name: string; description: string }) => void;
+  onUpdate?: (payload: { name: string; description: string }) => void;
   onClose?: () => void;
+  initialValues?: Task;
 }
 
-export default function TaskForm({ listId, onCreate, onClose }: TaskFormProps) {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
+export default function TaskForm({
+  listId,
+  onCreate,
+  onUpdate,
+  onClose,
+  initialValues,
+}: TaskFormProps) {
+  const [name, setName] = useState(initialValues?.name ?? "");
+  const [description, setDescription] = useState(
+    initialValues?.description ?? "",
+  );
   const [loading, setLoading] = useState(false);
 
-  const handleCreate = () => {
+  const isUpdateMode = !!onUpdate;
+
+  const handleSubmit = () => {
     if (!name.trim()) {
       Alert.alert("Error", "Task name is required");
       return;
@@ -27,30 +40,56 @@ export default function TaskForm({ listId, onCreate, onClose }: TaskFormProps) {
         description: description.trim(),
       };
 
-      console.log("Creating task with payload:", payload);
-      onCreate(payload);
+      console.log(
+        `${isUpdateMode ? "Updating" : "Creating"} task with payload:`,
+        payload,
+      );
 
-      setName("");
-      setDescription("");
+      if (isUpdateMode) {
+        onUpdate?.(payload);
+      } else {
+        onCreate?.(payload);
+      }
+
+      // Only clear form on create, not update (modal will close)
+      if (!isUpdateMode) {
+        setName("");
+        setDescription("");
+      }
 
       onClose?.();
     } catch (error) {
-      console.error("Error creating task:", error);
-      Alert.alert("Error", "Failed to create task. Please try again.");
+      console.error(
+        `Error ${isUpdateMode ? "updating" : "creating"} task:`,
+        error,
+      );
+      Alert.alert(
+        "Error",
+        `Failed to ${isUpdateMode ? "update" : "create"} task. Please try again.`,
+      );
     } finally {
       setLoading(false);
     }
   };
 
   const handleCancel = () => {
-    setName("");
-    setDescription("");
+    // Reset to initial values on cancel for update mode
+    if (isUpdateMode && initialValues) {
+      setName(initialValues.name ?? "");
+      setDescription(initialValues.description ?? "");
+    } else {
+      // Clear for create mode
+      setName("");
+      setDescription("");
+    }
     onClose?.();
   };
 
   return (
     <>
-      <Text style={styles.title}>New Task</Text>
+      <Text style={styles.title}>
+        {isUpdateMode ? "Edit Task" : "New Task"}
+      </Text>
 
       <TextInput
         placeholder="Task name *"
@@ -74,7 +113,7 @@ export default function TaskForm({ listId, onCreate, onClose }: TaskFormProps) {
         multiline
         numberOfLines={3}
         returnKeyType="done"
-        onSubmitEditing={handleCreate}
+        onSubmitEditing={handleSubmit}
       />
 
       <View style={styles.row}>
@@ -94,11 +133,15 @@ export default function TaskForm({ listId, onCreate, onClose }: TaskFormProps) {
             styles.primary,
             { opacity: loading || !name.trim() ? 0.5 : 1 },
           ]}
-          onPress={handleCreate}
+          onPress={handleSubmit}
           disabled={loading || !name.trim()}
         >
           <Text style={[styles.btnText, { color: "white" }]}>
-            {loading ? "Creating..." : "Create"}
+            {loading
+              ? `${isUpdateMode ? "Updating" : "Creating"}...`
+              : isUpdateMode
+                ? "Update"
+                : "Create"}
           </Text>
         </Pressable>
       </View>

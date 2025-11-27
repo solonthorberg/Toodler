@@ -1,19 +1,21 @@
-import AddButton from "@/src/components/button/addButton";
+import AddButton from "@/src/components/buttons/addButton";
+import ListCard from "@/src/components/cards/listCard/listCard";
 import ListForm from "@/src/components/forms/listForm";
-import ListCard from "@/src/components/listCard/listCard";
 import { boardService } from "@/src/services/boardService";
 import { listService } from "@/src/services/listService";
 import { List } from "@/src/types/list";
 import sharedStyles from "@/src/views/styles";
 import { useFocusEffect, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { Modal, ScrollView, Text, View } from "react-native";
 
 export default function ListsMain() {
   const { boardId } = useLocalSearchParams();
   const id = Number(boardId);
   const [lists, setLists] = useState<List[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [updateModalOpen, setUpdateModalOpen] = useState(false);
+  const [selectedList, setSelectedList] = useState<List | null>(null);
 
   const currentBoard = boardService.getBoardById(id);
 
@@ -50,6 +52,48 @@ export default function ListsMain() {
     [],
   );
 
+  const handleUpdateList = useCallback(
+    (payload: { name: string; color: string }) => {
+      try {
+        if (!selectedList || !payload.name?.trim()) {
+          return;
+        }
+
+        listService.updateList(selectedList.id, {
+          name: payload.name,
+          color: payload.color,
+        });
+
+        loadListsForBoard();
+        setUpdateModalOpen(false);
+        setSelectedList(null);
+      } catch (error) {
+        console.error("Error updating list:", error);
+      }
+    },
+    [selectedList, loadListsForBoard],
+  );
+
+  const openUpdateModal = useCallback(
+    (listId: number) => {
+      const list = lists.find((l) => l.id === listId);
+      if (list) {
+        setSelectedList(list);
+        setUpdateModalOpen(true);
+      }
+    },
+    [lists],
+  );
+
+  const closeUpdateModal = useCallback(() => {
+    setUpdateModalOpen(false);
+    setSelectedList(null);
+  }, []);
+
+  const handleListDeleted = useCallback(() => {
+    loadListsForBoard();
+  }, [loadListsForBoard]);
+
   useEffect(() => {
     loadListsForBoard();
   }, [loadListsForBoard]);
@@ -59,10 +103,6 @@ export default function ListsMain() {
       setRefreshKey((prev) => prev + 1);
     }, []),
   );
-
-  const handleListDeleted = useCallback(() => {
-    loadListsForBoard();
-  }, [loadListsForBoard]);
 
   return (
     <View style={sharedStyles.container}>
@@ -83,6 +123,7 @@ export default function ListsMain() {
               key={`${list.id}-${refreshKey}`}
               list={list}
               onListDeleted={handleListDeleted}
+              onUpdate={openUpdateModal}
             />
           ))
         )}
@@ -91,6 +132,26 @@ export default function ListsMain() {
           <ListForm onCreate={handleCreateList} boardId={id} />
         </AddButton>
       </ScrollView>
+
+      <Modal
+        visible={updateModalOpen}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={closeUpdateModal}
+      >
+        <View style={sharedStyles.backdrop}>
+          <View style={sharedStyles.sheet}>
+            <View style={sharedStyles.scrollContent}>
+              <ListForm
+                onUpdate={handleUpdateList}
+                initialValues={selectedList || undefined}
+                onClose={closeUpdateModal}
+                boardId={id}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }

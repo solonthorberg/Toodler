@@ -1,14 +1,16 @@
-import BoardCard from "@/src/components/boardCard/boardCard";
 import AddButton from "@/src/components/buttons/addButton";
+import BoardCard from "@/src/components/cards/boardCard/boardCard";
 import BoardForm from "@/src/components/forms/boardForm";
 import { boardService } from "@/src/services/boardService";
 import { Board } from "@/src/types/board";
 import sharedStyles from "@/src/views/styles";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { Modal, ScrollView, Text, View } from "react-native";
 
 export default function BoardsMain() {
   const [boards, setBoards] = useState<Board[]>([]);
+  const [updateModalOpen, setUpdateModalOpen] = useState(false);
+  const [selectedBoard, setSelectedBoard] = useState<Board | null>(null);
 
   const loadBoards = useCallback(() => {
     try {
@@ -57,6 +59,45 @@ export default function BoardsMain() {
     [loadBoards],
   );
 
+  const handleUpdateBoard = useCallback(
+    (payload: any) => {
+      try {
+        if (!selectedBoard || !payload.name?.trim()) {
+          return;
+        }
+
+        boardService.updateBoard(selectedBoard.id, {
+          name: payload.name,
+          description: payload.description || "",
+          thumbnailPhoto: payload.thumbnailPhoto || "",
+        });
+
+        loadBoards();
+        setUpdateModalOpen(false);
+        setSelectedBoard(null);
+      } catch (error) {
+        console.error("Error updating board:", error);
+      }
+    },
+    [selectedBoard, loadBoards],
+  );
+
+  const openUpdateModal = useCallback(
+    (boardId: number) => {
+      const board = boards.find((b) => b.id === boardId);
+      if (board) {
+        setSelectedBoard(board);
+        setUpdateModalOpen(true);
+      }
+    },
+    [boards],
+  );
+
+  const closeUpdateModal = useCallback(() => {
+    setUpdateModalOpen(false);
+    setSelectedBoard(null);
+  }, []);
+
   return (
     <View style={sharedStyles.container}>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -74,6 +115,7 @@ export default function BoardsMain() {
               key={board.id.toString()}
               board={{ ...board, description: board.description ?? "" }}
               onDelete={handleDeleteBoard}
+              onUpdate={openUpdateModal}
             />
           ))
         )}
@@ -82,6 +124,25 @@ export default function BoardsMain() {
           <BoardForm onCreate={handleCreateBoard} />
         </AddButton>
       </ScrollView>
+
+      <Modal
+        visible={updateModalOpen}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={closeUpdateModal}
+      >
+        <View style={sharedStyles.backdrop}>
+          <View style={sharedStyles.sheet}>
+            <View style={sharedStyles.scrollContent}>
+              <BoardForm
+                onUpdate={handleUpdateBoard}
+                initialValues={selectedBoard || undefined}
+                onClose={closeUpdateModal}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }

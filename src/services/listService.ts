@@ -1,3 +1,4 @@
+import { List } from "@/src/types/list";
 import { dataService } from "./dataService";
 import { taskService } from "./taskService";
 
@@ -33,6 +34,30 @@ export const listService = {
     return newList;
   },
 
+  updateList(id: number, updates: Partial<List>) {
+    const lists = dataService.getLists();
+    const listIndex = lists.findIndex((list) => list.id === id);
+
+    if (listIndex === -1) {
+      throw new Error(`List with id ${id} not found`);
+    }
+
+    const trimmedUpdates = {
+      ...updates,
+      ...(updates.name && { name: updates.name.trim() }),
+      ...(updates.color && { color: updates.color.trim() }),
+    };
+
+    const updatedList = { ...lists[listIndex], ...trimmedUpdates };
+
+    const updatedLists = [...lists];
+    updatedLists[listIndex] = updatedList;
+
+    dataService.setLists(updatedLists);
+    console.log("List updated:", updatedList);
+    return updatedList;
+  },
+
   deleteList(listId: number) {
     const lists = dataService.getLists();
     const filteredLists = lists.filter((list) => list.id !== listId);
@@ -40,6 +65,7 @@ export const listService = {
     taskService.deleteTaskByListId(listId);
 
     dataService.setLists(filteredLists);
+    console.log("List deleted:", listId);
 
     return true;
   },

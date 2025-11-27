@@ -10,9 +10,10 @@
 ## Feature list
    - Users can create/modify/delete boards. 
    - For each board users can create/modify/delete lists. 
-   - For each list users can create/modify/delete and toggle isFinished button for tasks.
+   - For each list users can create/modify/delete and toggle marked as complete button for tasks.
    - Users can only move tasks between lists.
-
+   - When a task is marked as complete, it automatically moves to the bottom of the list
+  
 ## Setup Instructions
 ### Prerequisites:
 - Node.js (v18 or higher)
@@ -43,6 +44,11 @@ In the output, you'll find options to open the app in a
 - [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+
+### linting:
+   ```bash
+   npx expo lint
+   ```
 
 ## Technologies Used
   - React Native
