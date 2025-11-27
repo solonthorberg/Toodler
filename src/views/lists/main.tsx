@@ -1,21 +1,29 @@
-import AddButton from "@/src/components/buttons/addButton";
+import HeaderAddButton from "@/src/components/buttons/HeaderAddButton";
+import AddButton, { AddButtonHandle } from "@/src/components/buttons/addButton"; // ← match main's path/casing
 import ListCard from "@/src/components/cards/listCard/listCard";
-import ListForm from "@/src/components/forms/listForm";
+import ListForm from "@/src/components/forms/listForm";                           // ← match main's path/casing
 import { boardService } from "@/src/services/boardService";
 import { listService } from "@/src/services/listService";
 import { List } from "@/src/types/list";
 import sharedStyles from "@/src/views/styles";
-import { useFocusEffect, useLocalSearchParams } from "expo-router";
-import React, { useCallback, useEffect, useState } from "react";
+
+import { useFocusEffect, useLocalSearchParams, Stack } from "expo-router";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Modal, ScrollView, Text, View } from "react-native";
 
 export default function ListsMain() {
   const { boardId } = useLocalSearchParams();
   const id = Number(boardId);
+
   const [lists, setLists] = useState<List[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
+
+  // === update modal state (from main) ===
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [selectedList, setSelectedList] = useState<List | null>(null);
+
+  // header "+" controls this AddButton via ref
+  const addRef = useRef<AddButtonHandle>(null);
 
   const currentBoard = boardService.getBoardById(id);
 
@@ -29,6 +37,16 @@ export default function ListsMain() {
     }
   }, [id]);
 
+  useEffect(() => {
+    loadListsForBoard();
+  }, [loadListsForBoard]);
+
+  useFocusEffect(
+    useCallback(() => {
+      setRefreshKey((prev) => prev + 1);
+    }, []),
+  );
+
   const handleCreateList = useCallback(
     (payload: { boardId: number; name: string; color: string }) => {
       try {
@@ -38,12 +56,9 @@ export default function ListsMain() {
           payload.color,
         );
 
-        setLists((prevLists) => {
-          const exists = prevLists.some((list) => list.id === newList.id);
-          if (exists) {
-            return prevLists;
-          }
-          return [...prevLists, newList];
+        setLists((prev) => {
+          const exists = prev.some((l) => l.id === newList.id);
+          return exists ? prev : [...prev, newList];
         });
       } catch (error) {
         console.error("Error creating list:", error);
@@ -52,28 +67,7 @@ export default function ListsMain() {
     [],
   );
 
-  const handleUpdateList = useCallback(
-    (payload: { name: string; color: string }) => {
-      try {
-        if (!selectedList || !payload.name?.trim()) {
-          return;
-        }
-
-        listService.updateList(selectedList.id, {
-          name: payload.name,
-          color: payload.color,
-        });
-
-        loadListsForBoard();
-        setUpdateModalOpen(false);
-        setSelectedList(null);
-      } catch (error) {
-        console.error("Error updating list:", error);
-      }
-    },
-    [selectedList, loadListsForBoard],
-  );
-
+  // === update handlers (from main) ===
   const openUpdateModal = useCallback(
     (listId: number) => {
       const list = lists.find((l) => l.id === listId);
@@ -90,22 +84,44 @@ export default function ListsMain() {
     setSelectedList(null);
   }, []);
 
+  const handleUpdateList = useCallback(
+    (payload: { name: string; color: string }) => {
+      try {
+        if (!selectedList || !payload.name?.trim()) return;
+
+        listService.updateList(selectedList.id, {
+          name: payload.name,
+          color: payload.color,
+        });
+
+        loadListsForBoard();
+        closeUpdateModal();
+      } catch (error) {
+        console.error("Error updating list:", error);
+      }
+    },
+    [selectedList, loadListsForBoard, closeUpdateModal],
+  );
+
   const handleListDeleted = useCallback(() => {
     loadListsForBoard();
   }, [loadListsForBoard]);
 
-  useEffect(() => {
-    loadListsForBoard();
-  }, [loadListsForBoard]);
-
-  useFocusEffect(
-    useCallback(() => {
-      setRefreshKey((prev) => prev + 1);
-    }, []),
-  );
-
   return (
     <View style={sharedStyles.container}>
+      {/* Header + opens the same AddButton modal via ref */}
+      <Stack.Screen
+        options={{
+          headerRight: ({ tintColor }) => (
+            <HeaderAddButton
+              onPress={() => addRef.current?.open()}
+              accessibilityLabel="Add list"
+              color={tintColor ?? "#111"}
+            />
+          ),
+        }}
+      />
+
       <ScrollView showsVerticalScrollIndicator={false}>
         <Text style={sharedStyles.subtitle}>
           {currentBoard?.name ?? "Lists"}
@@ -123,19 +139,21 @@ export default function ListsMain() {
               key={`${list.id}-${refreshKey}`}
               list={list}
               onListDeleted={handleListDeleted}
-              onUpdate={openUpdateModal}
+              onUpdate={openUpdateModal} 
             />
           ))
         )}
 
-        <AddButton accessibilityLabel="Add list">
+        {/* Footer AddButton; header + triggers ref.open() */}
+        <AddButton ref={addRef} accessibilityLabel="Add list">
           <ListForm onCreate={handleCreateList} boardId={id} />
         </AddButton>
       </ScrollView>
 
+      {/* Update modal (parity with main) */}
       <Modal
         visible={updateModalOpen}
-        transparent={true}
+        transparent
         animationType="slide"
         onRequestClose={closeUpdateModal}
       >

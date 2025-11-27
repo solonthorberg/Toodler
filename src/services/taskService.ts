@@ -1,17 +1,24 @@
-import type { Task } from "@/src/types/task";
+// src/services/taskService.ts
 import { dataService } from "./dataService";
+import type { Task } from "@/src/types/task";
 
+/** Split tasks into undone/done and return all three forms */
 export const orderTasks = (list: Task[]) => {
   const undone = list.filter((t) => !t.isFinished);
   const done = list.filter((t) => t.isFinished);
   return { undone, done, merged: [...undone, ...done] };
 };
 
+/**
+ * After toggling one task, re-merge so it lands at the END of its new group
+ * EXCEPT: if it was the only remaining undone task and becomes done,
+ * put it at the FRONT of the done list (so it stays visually in place).
+ */
 export const applyToggleToEnd = (list: Task[], taskId: number) => {
   const prevUndoneCount = list.filter((t) => !t.isFinished).length;
 
   const flipped = list.map((t) =>
-    t.id === taskId ? { ...t, isFinished: !t.isFinished } : t,
+    t.id === taskId ? { ...t, isFinished: !t.isFinished } : t
   );
 
   let { undone, done } = orderTasks(flipped);
@@ -53,23 +60,19 @@ export const taskService = {
       isFinished: false,
     };
 
-    const updatedTasks = [...tasks, newTask];
-    dataService.setTasks(updatedTasks);
-
-    console.log("Task created:", newTask);
+    dataService.setTasks([...tasks, newTask]);
     return newTask;
   },
 
   updateTask(id: number, updates: Partial<Task>) {
     const tasks = dataService.getTasks();
-    const taskIndex = tasks.findIndex((task) => task.id === id);
-    if (taskIndex === -1) return null;
+    const ix = tasks.findIndex((t) => t.id === id);
+    if (ix === -1) return null;
 
-    const updatedTask = { ...tasks[taskIndex], ...updates };
-    tasks[taskIndex] = updatedTask;
-
+    const updated = { ...tasks[ix], ...updates };
+    tasks[ix] = updated;
     dataService.setTasks(tasks);
-    return updatedTask;
+    return updated;
   },
 
   toggleTaskCompletion(id: number) {
@@ -80,15 +83,22 @@ export const taskService = {
 
   deleteTask(taskId: number) {
     const tasks = dataService.getTasks();
-    const filteredTasks = tasks.filter((task) => task.id !== taskId);
-    dataService.setTasks(filteredTasks);
+    dataService.setTasks(tasks.filter((t) => t.id !== taskId));
     return true;
   },
 
   deleteTaskByListId(listId: number) {
     const tasks = dataService.getTasks();
-    const filteredTasks = tasks.filter((t) => t.listId !== listId);
-    dataService.setTasks(filteredTasks);
+    dataService.setTasks(tasks.filter((t) => t.listId !== listId));
     return true;
+  },
+
+  /** Move a task to another list (board-agnostic). Keeps isFinished as-is. */
+  moveTask(taskId: number, targetListId: number): Task | null {
+    const task = this.getTaskById(taskId);
+    if (!task) return null;
+    if (task.listId === targetListId) return task; 
+    // Preserve isFinished; only change the listId
+    return this.updateTask(taskId, { listId: targetListId });
   },
 };
