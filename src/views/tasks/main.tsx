@@ -2,7 +2,7 @@ import AddButton from "@/src/components/buttons/AddButton";
 import TaskCard from "@/src/components/cards/taskCard/taskCard";
 import TaskForm from "@/src/components/forms/taskForm";
 import { listService } from "@/src/services/listService";
-import { taskService } from "@/src/services/taskService";
+import { taskService, orderTasks, applyToggleToEnd } from "@/src/services/taskService";
 import { Task } from "@/src/types/task";
 import sharedStyles from "@/src/views/styles";
 import { useLocalSearchParams } from "expo-router";
@@ -20,7 +20,7 @@ export default function TasksMain() {
   const loadTasksForList = useCallback(() => {
     try {
       const data = taskService.getTasksByListId(numericListId);
-      setTasks(data);
+      setTasks(orderTasks(data).merged); // <-- use service helper
     } catch (error) {
       console.error("Error loading tasks:", error);
       setTasks([]);
@@ -33,21 +33,21 @@ export default function TasksMain() {
         const newTask = taskService.addTask(
           numericListId,
           payload.name,
-          payload.description,
+          payload.description
         );
 
-        setTasks((prevTasks) => {
-          const exists = prevTasks.some((task) => task.id === newTask.id);
-          if (exists) {
-            return prevTasks;
-          }
-          return [...prevTasks, newTask];
+        // append to END of undone group
+        setTasks((prev) => {
+          const exists = prev.some((t) => t.id === newTask.id);
+          if (exists) return prev;
+          const { undone, done } = orderTasks(prev);
+          return [...undone, { ...newTask, isFinished: false }, ...done];
         });
       } catch (error) {
         console.error("Error creating task:", error);
       }
     },
-    [numericListId],
+    [numericListId]
   );
 
   useEffect(() => {
@@ -60,12 +60,13 @@ export default function TasksMain() {
 
   const handleToggleComplete = (taskId: number) => {
     taskService.toggleTaskCompletion(taskId);
-    loadTasksForList();
+    // move toggled task to END of its new group
+    setTasks((prev) => applyToggleToEnd(prev, taskId)); // <-- use service helper
   };
 
   const handleDeleteTask = (taskId: number) => {
     taskService.deleteTask(taskId);
-    loadTasksForList();
+    setTasks((prev) => prev.filter((t) => t.id !== taskId));
   };
 
   return (
