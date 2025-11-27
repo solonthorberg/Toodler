@@ -1,4 +1,5 @@
 import { dataService } from "./dataService";
+import { taskService } from "./taskService";
 
 export const listService = {
   getAllData() {
@@ -36,12 +37,23 @@ export const listService = {
     const lists = dataService.getLists();
     const filteredLists = lists.filter((list) => list.id !== listId);
 
+    taskService.deleteTaskByListId(listId);
+
     dataService.setLists(filteredLists);
 
-    const tasks = dataService.getTasks();
-    const filteredTasks = tasks.filter((task) => task.listId !== listId);
-    dataService.setTasks(filteredTasks);
-
     return true;
+  },
+
+  deleteListByBoardId(BoardId: number) {
+    const lists = dataService.getLists();
+    const filteredLists = lists.filter((board) => board.boardId !== BoardId);
+    console.log(lists);
+    const deletedLists = lists.filter((board) => board.boardId === BoardId);
+    console.log("BoardId:", BoardId);
+    console.log(deletedLists);
+
+    deletedLists.forEach((list) => taskService.deleteTaskByListId(list.id));
+
+    dataService.setLists(filteredLists);
   },
 };

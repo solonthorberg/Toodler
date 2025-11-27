@@ -1,4 +1,5 @@
 import { dataService } from "./dataService";
+import { listService } from "./listService";
 
 export const boardService = {
   getBoards() {
@@ -39,6 +40,8 @@ export const boardService = {
     const boards = dataService.getBoards();
     const filteredBoards = boards.filter((board) => board.id !== id);
 
+    listService.deleteListByBoardId(id);
+    console.log(id);
     dataService.setBoards(filteredBoards);
     return true;
   },
