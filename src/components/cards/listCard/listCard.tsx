@@ -1,11 +1,16 @@
 import { listService } from "@/src/services/listService";
-import { taskService } from "@/src/services/taskService";
+import {
+  taskService,
+  orderTasks,
+  applyToggleToEnd,
+} from "@/src/services/taskService";
 import { List } from "@/src/types/list";
 import { useRouter } from "expo-router";
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import TaskCard from "../taskCard/taskCard";
 import styles from "./styles";
+import type { Task } from "@/src/types/task";
 
 interface ListCardProps {
   list: List;
@@ -14,21 +19,30 @@ interface ListCardProps {
 
 export default function ListCard({ list, onListDeleted }: ListCardProps) {
   const router = useRouter();
-  const [refreshKey, setRefreshKey] = useState(0);
+  const [tasks, setTasks] = useState<Task[]>([]);
 
   const headerBackground = list.color;
-  const bodyBackground = headerBackground + "4D";
+  const bodyBackground = headerBackground ? `${headerBackground}4D` : "#0000000D";
 
-  const tasksForList = taskService.getTasksByListId(list.id);
+  // load tasks for this list, ordered: undone first, then done
+  const load = useCallback(() => {
+    const data = taskService.getTasksByListId(list.id);
+    setTasks(orderTasks(data).merged);
+  }, [list.id]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
 
   const handleToggleComplete = useCallback((taskId: number) => {
     taskService.toggleTaskCompletion(taskId);
-    setRefreshKey((prev) => prev + 1);
+    // move toggled task to END of its new group
+    setTasks((prev) => applyToggleToEnd(prev, taskId));
   }, []);
 
   const handleDeleteTask = useCallback((taskId: number) => {
     taskService.deleteTask(taskId);
-    setRefreshKey((prev) => prev + 1);
+    setTasks((prev) => prev.filter((t) => t.id !== taskId));
   }, []);
 
   const handleListPress = () => {
@@ -44,7 +58,7 @@ export default function ListCard({ list, onListDeleted }: ListCardProps) {
   };
 
   return (
-    <Pressable style={styles.card} onPress={handleListPress} key={refreshKey}>
+    <Pressable style={styles.card} onPress={handleListPress}>
       <View style={[styles.header, { backgroundColor: headerBackground }]}>
         <Text style={styles.title}>{list.name}</Text>
 
@@ -61,12 +75,18 @@ export default function ListCard({ list, onListDeleted }: ListCardProps) {
       </View>
 
       <View style={[styles.body, { backgroundColor: bodyBackground }]}>
-        {tasksForList.map((task) => (
+        {tasks.map((task) => (
           <TaskCard
             key={task.id}
             task={task}
-            onToggleComplete={handleToggleComplete}
-            onDelete={handleDeleteTask}
+            onToggleComplete={(id) => {
+              // prevent parent card navigation when tapping the checkbox
+              // (only needed if header Pressable sometimes overlaps)
+              handleToggleComplete(id);
+            }}
+            onDelete={(id) => {
+              handleDeleteTask(id);
+            }}
           />
         ))}
       </View>

@@ -29,4 +29,15 @@ export default StyleSheet.create({
     padding: 16,
     paddingBottom: 32,
   },
+  deleteButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "rgba(255,255,255,0.9)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  icon: {
+    fontSize: 18,
+  },
 });
