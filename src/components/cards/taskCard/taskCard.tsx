@@ -1,7 +1,7 @@
-import { Task } from "@/src/types/task";
 import React from "react";
 import { Pressable, Text, View } from "react-native";
 import styles from "./styles";
+import { Task } from "@/src/types/task";
 
 type Props = {
   task: Task;
@@ -9,7 +9,7 @@ type Props = {
   onDelete: (taskId: number) => void;
 };
 
-export default function TaskCard({ task, onToggleComplete, onDelete }: Props) {
+function TaskCardImpl({ task, onToggleComplete, onDelete }: Props) {
   return (
     <View style={styles.card}>
       <View style={styles.headerRow}>
@@ -32,3 +32,5 @@ export default function TaskCard({ task, onToggleComplete, onDelete }: Props) {
     </View>
   );
 }
+
+export default React.memo(TaskCardImpl);
