@@ -1,16 +1,26 @@
-import AddButton from "@/src/components/buttons/addButton";
+import HeaderAddButton from "@/src/components/buttons/HeaderAddButton";
+import AddButton, { AddButtonHandle } from "@/src/components/buttons/addButton"; 
 import BoardCard from "@/src/components/cards/boardCard/boardCard";
-import BoardForm from "@/src/components/forms/boardForm";
+import BoardForm from "@/src/components/forms/boardForm";                     
 import { boardService } from "@/src/services/boardService";
 import { Board } from "@/src/types/board";
 import sharedStyles from "@/src/views/styles";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Modal, ScrollView, Text, View } from "react-native";
+import { Stack } from "expo-router";
 
 export default function BoardsMain() {
   const [boards, setBoards] = useState<Board[]>([]);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [selectedBoard, setSelectedBoard] = useState<Board | null>(null);
+  const addRef = useRef<AddButtonHandle>(null); 
 
   const loadBoards = useCallback(() => {
     try {
@@ -32,9 +42,7 @@ export default function BoardsMain() {
 
   const handleCreateBoard = useCallback((payload: any) => {
     try {
-      if (!payload.name?.trim()) {
-        return;
-      }
+      if (!payload.name?.trim()) return;
 
       const newBoard = boardService.addBoard(
         payload.name,
@@ -42,10 +50,7 @@ export default function BoardsMain() {
         payload.thumbnailPhoto || "",
       );
 
-      setBoards((prevBoards) => {
-        const updatedBoards = [...prevBoards, newBoard];
-        return updatedBoards;
-      });
+      setBoards((prev) => [...prev, newBoard]);
     } catch (error) {
       console.error("Error creating board:", error);
     }
@@ -59,29 +64,7 @@ export default function BoardsMain() {
     [loadBoards],
   );
 
-  const handleUpdateBoard = useCallback(
-    (payload: any) => {
-      try {
-        if (!selectedBoard || !payload.name?.trim()) {
-          return;
-        }
-
-        boardService.updateBoard(selectedBoard.id, {
-          name: payload.name,
-          description: payload.description || "",
-          thumbnailPhoto: payload.thumbnailPhoto || "",
-        });
-
-        loadBoards();
-        setUpdateModalOpen(false);
-        setSelectedBoard(null);
-      } catch (error) {
-        console.error("Error updating board:", error);
-      }
-    },
-    [selectedBoard, loadBoards],
-  );
-
+  // === Update support (from main) ===
   const openUpdateModal = useCallback(
     (boardId: number) => {
       const board = boards.find((b) => b.id === boardId);
@@ -98,8 +81,41 @@ export default function BoardsMain() {
     setSelectedBoard(null);
   }, []);
 
+  const handleUpdateBoard = useCallback(
+    (payload: any) => {
+      try {
+        if (!selectedBoard || !payload.name?.trim()) return;
+
+        boardService.updateBoard(selectedBoard.id, {
+          name: payload.name,
+          description: payload.description || "",
+          thumbnailPhoto: payload.thumbnailPhoto || "",
+        });
+
+        loadBoards();
+        closeUpdateModal();
+      } catch (error) {
+        console.error("Error updating board:", error);
+      }
+    },
+    [selectedBoard, loadBoards, closeUpdateModal],
+  );
+
   return (
     <View style={sharedStyles.container}>
+      {/* Header "+" opens the same AddButton modal via ref */}
+      <Stack.Screen
+        options={{
+          headerRight: ({ tintColor }) => (
+            <HeaderAddButton
+              onPress={() => addRef.current?.open()}
+              accessibilityLabel="Add board"
+              color={tintColor ?? "#111"}
+            />
+          ),
+        }}
+      />
+
       <ScrollView showsVerticalScrollIndicator={false}>
         <Text style={sharedStyles.title}>Boards</Text>
 
@@ -115,19 +131,21 @@ export default function BoardsMain() {
               key={board.id.toString()}
               board={{ ...board, description: board.description ?? "" }}
               onDelete={handleDeleteBoard}
-              onUpdate={openUpdateModal}
+              onUpdate={openUpdateModal}  
             />
           ))
         )}
 
-        <AddButton accessibilityLabel="Add board">
+        {/* Footer + owns the modal; header + calls ref.open() */}
+        <AddButton ref={addRef} accessibilityLabel="Add board">
           <BoardForm onCreate={handleCreateBoard} />
         </AddButton>
       </ScrollView>
 
+      {/* Update modal (matches main’s structure) */}
       <Modal
         visible={updateModalOpen}
-        transparent={true}
+        transparent
         animationType="slide"
         onRequestClose={closeUpdateModal}
       >
