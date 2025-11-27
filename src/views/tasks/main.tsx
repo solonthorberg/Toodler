@@ -2,7 +2,11 @@ import AddButton from "@/src/components/buttons/addButton";
 import TaskCard from "@/src/components/cards/taskCard/taskCard";
 import TaskForm from "@/src/components/forms/taskForm";
 import { listService } from "@/src/services/listService";
-import { taskService } from "@/src/services/taskService";
+import {
+  applyToggleToEnd,
+  orderTasks,
+  taskService,
+} from "@/src/services/taskService";
 import { Task } from "@/src/types/task";
 import sharedStyles from "@/src/views/styles";
 import { useLocalSearchParams } from "expo-router";
@@ -22,7 +26,7 @@ export default function TasksMain() {
   const loadTasksForList = useCallback(() => {
     try {
       const data = taskService.getTasksByListId(numericListId);
-      setTasks(data);
+      setTasks(orderTasks(data).merged);
     } catch (error) {
       console.error("Error loading tasks:", error);
       setTasks([]);
@@ -38,12 +42,11 @@ export default function TasksMain() {
           payload.description,
         );
 
-        setTasks((prevTasks) => {
-          const exists = prevTasks.some((task) => task.id === newTask.id);
-          if (exists) {
-            return prevTasks;
-          }
-          return [...prevTasks, newTask];
+        setTasks((prev) => {
+          const exists = prev.some((t) => t.id === newTask.id);
+          if (exists) return prev;
+          const { undone, done } = orderTasks(prev);
+          return [...undone, { ...newTask, isFinished: false }, ...done];
         });
       } catch (error) {
         console.error("Error creating task:", error);
@@ -92,14 +95,12 @@ export default function TasksMain() {
 
   const handleToggleComplete = (taskId: number) => {
     taskService.toggleTaskCompletion(taskId);
-    loadTasksForList();
+    setTasks((prev) => applyToggleToEnd(prev, taskId));
   };
 
   const handleDeleteTask = (taskId: number) => {
-    console.log("Delete button pressed for task");
-
     taskService.deleteTask(taskId);
-    loadTasksForList();
+    setTasks((prev) => prev.filter((t) => t.id !== taskId));
   };
 
   useEffect(() => {
