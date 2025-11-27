@@ -1,6 +1,6 @@
-import AddButton from "@/src/components/Button/AddButton";
-import ListForm from "@/src/components/Forms/ListForm";
-import ListCard from "@/src/components/listCard/listCard";
+import AddButton from "@/src/components/buttons/AddButton";
+import ListCard from "@/src/components/cards/listCard/listCard";
+import ListForm from "@/src/components/forms/listForm";
 import { boardService } from "@/src/services/boardService";
 import { listService } from "@/src/services/listService";
 import { List } from "@/src/types/list";

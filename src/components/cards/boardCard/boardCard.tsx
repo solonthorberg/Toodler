@@ -44,7 +44,6 @@ export default function BoardCard({ board, onDelete }: BoardCardProps) {
         <View style={[styles.banner, { backgroundColor: "#fff" }]} />
       )}
 
-      {/* Delete button positioned on top */}
       <Pressable
         style={styles.deleteButton}
         onPress={(e) => {
