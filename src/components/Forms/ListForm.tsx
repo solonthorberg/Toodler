@@ -1,6 +1,15 @@
 import React, { useState } from "react";
 import { Alert, Pressable, Text, TextInput, View } from "react-native";
 import styles from "./styles";
+import { PALETTE, DEFAULT_COLOR } from "../../styles/colors"
+
+
+
+const NONE = "__NONE__" as const;
+
+// Light gray default (slightly darker than white so it stands out)
+// tweak if you want lighter/darker: "#F3F4F6" (lighter) or "#D1D5DB" (darker)
+
 
 interface ListFormProps {
   boardId: number;
@@ -8,13 +17,9 @@ interface ListFormProps {
   onClose?: () => void;
 }
 
-export default function ListForm({
-  boardId,
-  onCreate,
-  onClose,
-}: ListFormProps) {
+export default function ListForm({ boardId, onCreate, onClose }: ListFormProps) {
   const [name, setName] = useState("");
-  const [color, setColor] = useState("");
+  const [color, setColor] = useState<string | typeof NONE>(""); // can be hex string or NONE
   const [loading, setLoading] = useState(false);
 
   const handleCreate = () => {
@@ -29,15 +34,15 @@ export default function ListForm({
       const payload = {
         boardId,
         name: name.trim(),
-        color: color.trim() || "#3B82F6",
+        // If "No color" chosen -> "", otherwise if nothing chosen -> light gray default
+        color: color === NONE ? DEFAULT_COLOR : (String(color).trim() || DEFAULT_COLOR),
       };
 
-      console.log("Creating list with payload:", payload);
       onCreate(payload);
 
+      // reset and close
       setName("");
       setColor("");
-
       onClose?.();
     } catch (error) {
       console.error("Error creating list:", error);
@@ -68,19 +73,45 @@ export default function ListForm({
         returnKeyType="next"
       />
 
-      <TextInput
-        placeholder="Color (optional)"
-        placeholderTextColor="#888"
-        value={color}
-        onChangeText={setColor}
-        style={styles.input}
-        editable={!loading}
-        autoCapitalize="none"
-        autoCorrect={false}
-        returnKeyType="done"
-        onSubmitEditing={handleCreate}
-      />
+      {/* Color picker in an input-like box */}
+      <View style={[styles.input, styles.colorBox]}>
+        <Text style={styles.label}>Color (optional)</Text>
 
+        <View style={styles.swatchGrid}>
+          {/* palette swatches */}
+          {PALETTE.map((c) => {
+            const selected = color === c; // no auto-select; starts with no selection
+            return (
+              <Pressable
+                key={c}
+                onPress={() => setColor(c)}
+                accessibilityRole="button"
+                accessibilityLabel={`Choose color ${c}`}
+                style={[styles.swatchWrap, selected && styles.swatchWrapSelected]}
+                disabled={loading}
+              >
+                <View style={[styles.swatch, { backgroundColor: c }]} />
+              </Pressable>
+            );
+          })}
+
+          {/* "No color" swatch */}
+          <Pressable
+            key="__none__"
+            onPress={() => setColor(NONE)}
+            accessibilityRole="button"
+            accessibilityLabel="No color"
+            style={[styles.swatchWrap, color === NONE && styles.swatchWrapSelected]}
+            disabled={loading}
+          >
+            <View style={styles.noneSwatch}>
+              <Text style={styles.noneX}>×</Text>
+            </View>
+          </Pressable>
+        </View>
+      </View>
+
+      {/* Actions */}
       <View style={styles.row}>
         <Pressable
           onPress={handleCancel}
