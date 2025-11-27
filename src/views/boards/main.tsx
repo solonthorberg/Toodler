@@ -1,10 +1,11 @@
+import AddButton, { AddButtonHandle } from "@/src/components/buttons/addButton";
 import HeaderAddButton from "@/src/components/buttons/HeaderAddButton";
-import AddButton, { AddButtonHandle } from "@/src/components/buttons/AddButton";
 import BoardCard from "@/src/components/cards/boardCard/boardCard";
 import BoardForm from "@/src/components/Forms/BoardForm";
 import { boardService } from "@/src/services/boardService";
 import { Board } from "@/src/types/board";
 import sharedStyles from "@/src/views/styles";
+import { Stack } from "expo-router";
 import React, {
   useCallback,
   useEffect,
@@ -13,7 +14,6 @@ import React, {
   useState,
 } from "react";
 import { ScrollView, Text, View } from "react-native";
-import { Stack } from "expo-router";
 
 export default function BoardsMain() {
   const [boards, setBoards] = useState<Board[]>([]);
