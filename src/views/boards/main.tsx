@@ -1,6 +1,6 @@
 import AddButton from "@/src/components/buttons/addButton";
 import BoardCard from "@/src/components/cards/boardCard/boardCard";
-import BoardForm from "@/src/components/Forms/boardForm";
+import BoardForm from "@/src/components/forms/boardForm";
 import { boardService } from "@/src/services/boardService";
 import { Board } from "@/src/types/board";
 import sharedStyles from "@/src/views/styles";
