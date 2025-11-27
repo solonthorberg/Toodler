@@ -1,23 +1,41 @@
+import { Board } from "@/src/types/board";
 import React, { useState } from "react";
 import { Alert, Pressable, Text, TextInput, View } from "react-native";
 import styles from "./styles";
 
 interface BoardFormProps {
-  onCreate: (payload: {
+  onCreate?: (payload: {
+    name: string;
+    description: string;
+    thumbnailPhoto: string;
+  }) => void;
+  onUpdate?: (payload: {
     name: string;
     description: string;
     thumbnailPhoto: string;
   }) => void;
   onClose?: () => void;
+  initialValues?: Board;
 }
 
-export default function BoardForm({ onCreate, onClose }: BoardFormProps) {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [thumbnailPhoto, setThumbnailPhoto] = useState("");
+export default function BoardForm({
+  onCreate,
+  onUpdate,
+  onClose,
+  initialValues,
+}: BoardFormProps) {
+  const [name, setName] = useState(initialValues?.name ?? "");
+  const [description, setDescription] = useState(
+    initialValues?.description ?? "",
+  );
+  const [thumbnailPhoto, setThumbnailPhoto] = useState(
+    initialValues?.thumbnailPhoto ?? "",
+  );
   const [loading, setLoading] = useState(false);
 
-  const handleCreate = () => {
+  const isUpdateMode = !!onUpdate;
+
+  const handleSubmit = () => {
     if (!name.trim()) {
       Alert.alert("Error", "Board name is required");
       return;
@@ -32,32 +50,51 @@ export default function BoardForm({ onCreate, onClose }: BoardFormProps) {
         thumbnailPhoto: thumbnailPhoto.trim(),
       };
 
-      console.log("Creating board with payload:", payload);
-      onCreate(payload);
+      if (isUpdateMode) {
+        onUpdate?.(payload);
+      } else {
+        onCreate?.(payload);
+      }
 
-      setName("");
-      setDescription("");
-      setThumbnailPhoto("");
+      if (!isUpdateMode) {
+        setName("");
+        setDescription("");
+        setThumbnailPhoto("");
+      }
 
       onClose?.();
     } catch (error) {
-      console.error("Error creating board:", error);
-      Alert.alert("Error", "Failed to create board. Please try again.");
+      console.error(
+        `Error ${isUpdateMode ? "updating" : "creating"} board:`,
+        error,
+      );
+      Alert.alert(
+        "Error",
+        `Failed to ${isUpdateMode ? "update" : "create"} board. Please try again.`,
+      );
     } finally {
       setLoading(false);
     }
   };
 
   const handleCancel = () => {
-    setName("");
-    setDescription("");
-    setThumbnailPhoto("");
+    if (isUpdateMode && initialValues) {
+      setName(initialValues.name ?? "");
+      setDescription(initialValues.description ?? "");
+      setThumbnailPhoto(initialValues.thumbnailPhoto ?? "");
+    } else {
+      setName("");
+      setDescription("");
+      setThumbnailPhoto("");
+    }
     onClose?.();
   };
 
   return (
     <>
-      <Text style={styles.title}>New Board</Text>
+      <Text style={styles.title}>
+        {isUpdateMode ? "Edit Board" : "New Board"}
+      </Text>
 
       <TextInput
         placeholder="Board name *"
@@ -93,7 +130,7 @@ export default function BoardForm({ onCreate, onClose }: BoardFormProps) {
         autoCapitalize="none"
         autoCorrect={false}
         returnKeyType="done"
-        onSubmitEditing={handleCreate}
+        onSubmitEditing={handleSubmit}
       />
 
       <View style={styles.row}>
@@ -113,11 +150,15 @@ export default function BoardForm({ onCreate, onClose }: BoardFormProps) {
             styles.primary,
             { opacity: loading || !name.trim() ? 0.5 : 1 },
           ]}
-          onPress={handleCreate}
+          onPress={handleSubmit}
           disabled={loading || !name.trim()}
         >
           <Text style={[styles.btnText, { color: "white" }]}>
-            {loading ? "Creating..." : "Create"}
+            {loading
+              ? `${isUpdateMode ? "Updating" : "Creating"}...`
+              : isUpdateMode
+                ? "Update"
+                : "Create"}
           </Text>
         </Pressable>
       </View>

@@ -51,7 +51,7 @@ export const taskService = {
 
   deleteTask(taskId: number) {
     const tasks = dataService.getTasks();
-    const filteredTasks = tasks.filter((task) => task.listId !== taskId);
+    const filteredTasks = tasks.filter((task) => task.id !== taskId);
     dataService.setTasks(filteredTasks);
     return true;
   },

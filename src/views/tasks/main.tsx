@@ -7,10 +7,12 @@ import { Task } from "@/src/types/task";
 import sharedStyles from "@/src/views/styles";
 import { useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";
-import { ScrollView, Text, View } from "react-native";
+import { Modal, ScrollView, Text, View } from "react-native";
 
 export default function TasksMain() {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [updateModalOpen, setUpdateModalOpen] = useState(false);
+  const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
   const { listId } = useLocalSearchParams();
   const numericListId = Number(listId);
@@ -50,13 +52,43 @@ export default function TasksMain() {
     [numericListId],
   );
 
-  useEffect(() => {
-    if (numericListId && !isNaN(numericListId)) {
-      loadTasksForList();
-    } else {
-      console.error("Invalid listId:", listId);
-    }
-  }, [listId, loadTasksForList, numericListId]);
+  const handleUpdateTask = useCallback(
+    (payload: { name: string; description: string }) => {
+      try {
+        if (!selectedTask || !payload.name?.trim()) {
+          return;
+        }
+
+        taskService.updateTask(selectedTask.id, {
+          name: payload.name,
+          description: payload.description,
+        });
+
+        loadTasksForList();
+        setUpdateModalOpen(false);
+        setSelectedTask(null);
+      } catch (error) {
+        console.error("Error updating task:", error);
+      }
+    },
+    [selectedTask, loadTasksForList],
+  );
+
+  const openUpdateModal = useCallback(
+    (taskId: number) => {
+      const task = tasks.find((t) => t.id === taskId);
+      if (task) {
+        setSelectedTask(task);
+        setUpdateModalOpen(true);
+      }
+    },
+    [tasks],
+  );
+
+  const closeUpdateModal = useCallback(() => {
+    setUpdateModalOpen(false);
+    setSelectedTask(null);
+  }, []);
 
   const handleToggleComplete = (taskId: number) => {
     taskService.toggleTaskCompletion(taskId);
@@ -64,9 +96,19 @@ export default function TasksMain() {
   };
 
   const handleDeleteTask = (taskId: number) => {
+    console.log("Delete button pressed for task");
+
     taskService.deleteTask(taskId);
     loadTasksForList();
   };
+
+  useEffect(() => {
+    if (numericListId && !isNaN(numericListId)) {
+      loadTasksForList();
+    } else {
+      console.error("Invalid listId:", listId);
+    }
+  }, [listId, loadTasksForList, numericListId]);
 
   return (
     <View style={sharedStyles.container}>
@@ -88,6 +130,7 @@ export default function TasksMain() {
               task={task}
               onToggleComplete={handleToggleComplete}
               onDelete={handleDeleteTask}
+              onUpdate={openUpdateModal}
             />
           ))
         )}
@@ -96,6 +139,26 @@ export default function TasksMain() {
           <TaskForm onCreate={handleCreateTask} listId={numericListId} />
         </AddButton>
       </ScrollView>
+
+      <Modal
+        visible={updateModalOpen}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={closeUpdateModal}
+      >
+        <View style={sharedStyles.backdrop}>
+          <View style={sharedStyles.sheet}>
+            <View style={sharedStyles.scrollContent}>
+              <TaskForm
+                onUpdate={handleUpdateTask}
+                initialValues={selectedTask || undefined}
+                onClose={closeUpdateModal}
+                listId={numericListId}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }

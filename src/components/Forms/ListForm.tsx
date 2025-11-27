@@ -1,28 +1,39 @@
+import { List } from "@/src/types/list";
 import React, { useState } from "react";
 import { Alert, Pressable, Text, TextInput, View } from "react-native";
+import { DEFAULT_COLOR, PALETTE } from "../../styles/colors";
 import styles from "./styles";
-import { PALETTE, DEFAULT_COLOR } from "../../styles/colors"
-
-
 
 const NONE = "__NONE__" as const;
 
-// Light gray default (slightly darker than white so it stands out)
-// tweak if you want lighter/darker: "#F3F4F6" (lighter) or "#D1D5DB" (darker)
-
-
 interface ListFormProps {
   boardId: number;
-  onCreate: (payload: { boardId: number; name: string; color: string }) => void;
+  onCreate?: (payload: {
+    boardId: number;
+    name: string;
+    color: string;
+  }) => void;
+  onUpdate?: (payload: { name: string; color: string }) => void;
   onClose?: () => void;
+  initialValues?: List;
 }
 
-export default function ListForm({ boardId, onCreate, onClose }: ListFormProps) {
-  const [name, setName] = useState("");
-  const [color, setColor] = useState<string | typeof NONE>(""); // can be hex string or NONE
+export default function ListForm({
+  boardId,
+  onCreate,
+  onUpdate,
+  onClose,
+  initialValues,
+}: ListFormProps) {
+  const [name, setName] = useState(initialValues?.name ?? "");
+  const [color, setColor] = useState<string | typeof NONE>(
+    initialValues?.color ?? "",
+  );
   const [loading, setLoading] = useState(false);
 
-  const handleCreate = () => {
+  const isUpdateMode = !!onUpdate;
+
+  const handleSubmit = () => {
     if (!name.trim()) {
       Alert.alert("Error", "List name is required");
       return;
@@ -31,36 +42,59 @@ export default function ListForm({ boardId, onCreate, onClose }: ListFormProps) 
     try {
       setLoading(true);
 
-      const payload = {
-        boardId,
-        name: name.trim(),
-        // If "No color" chosen -> "", otherwise if nothing chosen -> light gray default
-        color: color === NONE ? DEFAULT_COLOR : (String(color).trim() || DEFAULT_COLOR),
-      };
+      const colorValue =
+        color === NONE ? DEFAULT_COLOR : String(color).trim() || DEFAULT_COLOR;
 
-      onCreate(payload);
+      if (isUpdateMode) {
+        const payload = {
+          name: name.trim(),
+          color: colorValue,
+        };
+        onUpdate?.(payload);
+      } else {
+        const payload = {
+          boardId,
+          name: name.trim(),
+          color: colorValue,
+        };
+        onCreate?.(payload);
+      }
+      if (!isUpdateMode) {
+        setName("");
+        setColor("");
+      }
 
-      // reset and close
-      setName("");
-      setColor("");
       onClose?.();
     } catch (error) {
-      console.error("Error creating list:", error);
-      Alert.alert("Error", "Failed to create list. Please try again.");
+      console.error(
+        `Error ${isUpdateMode ? "updating" : "creating"} list:`,
+        error,
+      );
+      Alert.alert(
+        "Error",
+        `Failed to ${isUpdateMode ? "update" : "create"} list. Please try again.`,
+      );
     } finally {
       setLoading(false);
     }
   };
 
   const handleCancel = () => {
-    setName("");
-    setColor("");
+    if (isUpdateMode && initialValues) {
+      setName(initialValues.name ?? "");
+      setColor(initialValues.color ?? "");
+    } else {
+      setName("");
+      setColor("");
+    }
     onClose?.();
   };
 
   return (
     <>
-      <Text style={styles.title}>New List</Text>
+      <Text style={styles.title}>
+        {isUpdateMode ? "Edit List" : "New List"}
+      </Text>
 
       <TextInput
         placeholder="List name *"
@@ -73,21 +107,22 @@ export default function ListForm({ boardId, onCreate, onClose }: ListFormProps) 
         returnKeyType="next"
       />
 
-      {/* Color picker in an input-like box */}
       <View style={[styles.input, styles.colorBox]}>
         <Text style={styles.label}>Color (optional)</Text>
 
         <View style={styles.swatchGrid}>
-          {/* palette swatches */}
           {PALETTE.map((c) => {
-            const selected = color === c; // no auto-select; starts with no selection
+            const selected = color === c;
             return (
               <Pressable
                 key={c}
                 onPress={() => setColor(c)}
                 accessibilityRole="button"
                 accessibilityLabel={`Choose color ${c}`}
-                style={[styles.swatchWrap, selected && styles.swatchWrapSelected]}
+                style={[
+                  styles.swatchWrap,
+                  selected && styles.swatchWrapSelected,
+                ]}
                 disabled={loading}
               >
                 <View style={[styles.swatch, { backgroundColor: c }]} />
@@ -95,13 +130,15 @@ export default function ListForm({ boardId, onCreate, onClose }: ListFormProps) 
             );
           })}
 
-          {/* "No color" swatch */}
           <Pressable
             key="__none__"
             onPress={() => setColor(NONE)}
             accessibilityRole="button"
             accessibilityLabel="No color"
-            style={[styles.swatchWrap, color === NONE && styles.swatchWrapSelected]}
+            style={[
+              styles.swatchWrap,
+              color === NONE && styles.swatchWrapSelected,
+            ]}
             disabled={loading}
           >
             <View style={styles.noneSwatch}>
@@ -111,7 +148,6 @@ export default function ListForm({ boardId, onCreate, onClose }: ListFormProps) 
         </View>
       </View>
 
-      {/* Actions */}
       <View style={styles.row}>
         <Pressable
           onPress={handleCancel}
@@ -129,11 +165,15 @@ export default function ListForm({ boardId, onCreate, onClose }: ListFormProps) 
             styles.primary,
             { opacity: loading || !name.trim() ? 0.5 : 1 },
           ]}
-          onPress={handleCreate}
+          onPress={handleSubmit}
           disabled={loading || !name.trim()}
         >
           <Text style={[styles.btnText, { color: "white" }]}>
-            {loading ? "Creating..." : "Create"}
+            {loading
+              ? `${isUpdateMode ? "Updating" : "Creating"}...`
+              : isUpdateMode
+                ? "Update"
+                : "Create"}
           </Text>
         </Pressable>
       </View>

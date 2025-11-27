@@ -17,6 +17,7 @@ export default StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
+    position: "relative",
   },
 
   body: {
@@ -31,11 +32,15 @@ export default StyleSheet.create({
     marginBottom: 4,
   },
 
-  trashButton: {
-    paddingLeft: 10,
+  cardButtonContainer: {
+    position: "absolute",
+    top: 14,
+    right: 14,
+    flexDirection: "row",
+    gap: 8,
+    zIndex: 1,
   },
-
-  trashText: {
-    fontSize: 18,
+  cardContent: {
+    flex: 1,
   },
 });

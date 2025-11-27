@@ -46,24 +46,21 @@ export default StyleSheet.create({
     fontWeight: "500",
   },
   colorBox: {
-    // reuse input’s border/radius/background via [styles.input, styles.colorBox]
-    paddingVertical: 8,   // make room for the swatches
-    paddingHorizontal: 8, // swatches breathing room
-    minHeight: undefined, // let height grow with content (overrides input's minHeight)
+    paddingVertical: 8,
+    paddingHorizontal: 8,
+    minHeight: undefined,
   },
-  // The text above the color swatches
   label: {
     fontSize: 14,
     color: "#444",
     marginBottom: 8,
   },
-  // The grid container for color swatches, the layout inside that box
+
   swatchGrid: {
     flexDirection: "row",
     flexWrap: "wrap",
     justifyContent: "center",
   },
-  // Each swatch’s wrapper (for border when selected)
   swatchWrap: {
     width: 36,
     height: 36,
@@ -73,12 +70,10 @@ export default StyleSheet.create({
     marginRight: 12,
     marginBottom: 12,
   },
-  // Highlighted/selected swatch border
   swatchWrapSelected: {
     borderWidth: 2,
     borderColor: "#111",
   },
-  // The color swatch itself
   swatch: {
     width: 28,
     height: 28,

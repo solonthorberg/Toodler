@@ -1,3 +1,4 @@
+import { Board } from "@/src/types/board";
 import { dataService } from "./dataService";
 import { listService } from "./listService";
 
@@ -25,14 +26,32 @@ export const boardService = {
     return newBoard;
   },
 
-  updateBoard(id: number, updates: any) {
+  updateBoard(id: number, updates: Partial<Board>) {
     const boards = dataService.getBoards();
     const boardIndex = boards.findIndex((board) => board.id === id);
 
-    const updatedBoard = { ...boards[boardIndex], ...updates };
-    boards[boardIndex] = updatedBoard;
+    if (boardIndex === -1) {
+      throw new Error(`Board with id ${id} not found`);
+    }
 
-    dataService.setBoards(boards);
+    // Trim string values in updates
+    const trimmedUpdates = {
+      ...updates,
+      ...(updates.name && { name: updates.name.trim() }),
+      ...(updates.description && { description: updates.description.trim() }),
+      ...(updates.thumbnailPhoto && {
+        thumbnailPhoto: updates.thumbnailPhoto.trim(),
+      }),
+    };
+
+    const updatedBoard = { ...boards[boardIndex], ...trimmedUpdates };
+
+    // Create new array instead of mutating
+    const updatedBoards = [...boards];
+    updatedBoards[boardIndex] = updatedBoard;
+
+    dataService.setBoards(updatedBoards);
+    console.log("Board updated:", updatedBoard);
     return updatedBoard;
   },
 
@@ -41,7 +60,7 @@ export const boardService = {
     const filteredBoards = boards.filter((board) => board.id !== id);
 
     listService.deleteListByBoardId(id);
-    console.log(id);
+    console.log("Board deleted:", id);
     dataService.setBoards(filteredBoards);
     return true;
   },

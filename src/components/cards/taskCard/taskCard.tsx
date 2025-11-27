@@ -1,3 +1,5 @@
+import DeleteButton from "@/src/components/buttons/deleteButton";
+import UpdateButton from "@/src/components/buttons/updateButton";
 import { Task } from "@/src/types/task";
 import React from "react";
 import { Pressable, Text, View } from "react-native";
@@ -7,9 +9,23 @@ type Props = {
   task: Task;
   onToggleComplete: (taskId: number) => void;
   onDelete: (taskId: number) => void;
+  onUpdate?: (taskId: number) => void;
 };
 
-export default function TaskCard({ task, onToggleComplete, onDelete }: Props) {
+export default function TaskCard({
+  task,
+  onToggleComplete,
+  onDelete,
+  onUpdate,
+}: Props) {
+  const handleUpdate = () => {
+    onUpdate?.(task.id);
+  };
+
+  const handleDelete = () => {
+    onDelete(task.id);
+  };
+
   return (
     <View style={styles.card}>
       <View style={styles.headerRow}>
@@ -22,9 +38,10 @@ export default function TaskCard({ task, onToggleComplete, onDelete }: Props) {
 
         <Text style={styles.title}>{task.name}</Text>
 
-        <Pressable style={styles.trashButton} onPress={() => onDelete(task.id)}>
-          <Text style={styles.trashText}>🗑️</Text>
-        </Pressable>
+        <View style={styles.buttonContainer}>
+          <UpdateButton onPress={handleUpdate} style={styles.actionButton} />
+          <DeleteButton onPress={handleDelete} style={styles.actionButton} />
+        </View>
       </View>
 
       <View style={styles.separator} />

@@ -7,16 +7,16 @@ type Props = {
   style?: ViewStyle;
 };
 
-export default function DeleteButton({ onPress, style }: Props) {
+export default function updateButton({ onPress, style }: Props) {
   return (
     <Pressable
       onPress={(e) => {
         e.stopPropagation();
         onPress?.();
       }}
-      style={[styles.deleteButton, style]}
+      style={[styles.updateButton, style]}
     >
-      <Text style={styles.icon}>🗑️</Text>
+      <Text style={styles.icon}>✏️</Text>
     </Pressable>
   );
 }

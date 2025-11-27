@@ -1,26 +1,31 @@
+import { Board } from "@/src/types/board";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
 import { ImageBackground, Pressable, Text, View } from "react-native";
+import DeleteButton from "../../buttons/deleteButton";
+import UpdateButton from "../../buttons/updateButton";
 import styles from "./styles";
-
-export type Board = {
-  id: number;
-  name: string;
-  description: string;
-  thumbnailPhoto?: string;
-};
 
 interface BoardCardProps {
   board: Board;
   onDelete?: (boardId: number) => void;
+  onUpdate?: (boardId: number) => void;
 }
 
-export default function BoardCard({ board, onDelete }: BoardCardProps) {
+export default function BoardCard({
+  board,
+  onDelete,
+  onUpdate,
+}: BoardCardProps) {
   const router = useRouter();
   const [imgOk, setImgOk] = useState(!!board.thumbnailPhoto);
 
   const handleDelete = () => {
     onDelete?.(board.id);
+  };
+
+  const handleUpdate = () => {
+    onUpdate?.(board.id);
   };
 
   return (
@@ -44,16 +49,14 @@ export default function BoardCard({ board, onDelete }: BoardCardProps) {
         <View style={[styles.banner, { backgroundColor: "#fff" }]} />
       )}
 
-      <Pressable
-        style={styles.deleteButton}
-        onPress={(e) => {
-          e.stopPropagation();
-          handleDelete();
-        }}
-        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-      >
-        <Text style={styles.deleteText}>🗑️</Text>
-      </Pressable>
+      <UpdateButton
+        onPress={handleUpdate}
+        style={styles.updateButtonPosition}
+      />
+      <DeleteButton
+        onPress={handleDelete}
+        style={styles.deleteButtonPosition}
+      />
 
       <View style={styles.body}>
         <Text style={styles.title}>{board.name}</Text>
