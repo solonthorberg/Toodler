@@ -1,14 +1,23 @@
-import AddButton from "@/src/components/buttons/AddButton";
+import HeaderAddButton from "@/src/components/buttons/HeaderAddButton";
+import AddButton, { AddButtonHandle } from "@/src/components/buttons/AddButton";
 import BoardCard from "@/src/components/cards/boardCard/boardCard";
-import BoardForm from "@/src/components/forms/boardForm";
+import BoardForm from "@/src/components/Forms/BoardForm";
 import { boardService } from "@/src/services/boardService";
 import { Board } from "@/src/types/board";
 import sharedStyles from "@/src/views/styles";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { ScrollView, Text, View } from "react-native";
+import { Stack } from "expo-router";
 
 export default function BoardsMain() {
   const [boards, setBoards] = useState<Board[]>([]);
+  const addRef = useRef<AddButtonHandle>(null); // ref to the AddButton modal
 
   const loadBoards = useCallback(() => {
     try {
@@ -25,25 +34,20 @@ export default function BoardsMain() {
 
   const sortedBoards = useMemo(
     () => [...boards].sort((a, b) => a.name.localeCompare(b.name)),
-    [boards],
+    [boards]
   );
 
   const handleCreateBoard = useCallback((payload: any) => {
     try {
-      if (!payload.name?.trim()) {
-        return;
-      }
+      if (!payload.name?.trim()) return;
 
       const newBoard = boardService.addBoard(
         payload.name,
         payload.description || "",
-        payload.thumbnailPhoto || "",
+        payload.thumbnailPhoto || ""
       );
 
-      setBoards((prevBoards) => {
-        const updatedBoards = [...prevBoards, newBoard];
-        return updatedBoards;
-      });
+      setBoards((prevBoards) => [...prevBoards, newBoard]);
     } catch (error) {
       console.error("Error creating board:", error);
     }
@@ -54,11 +58,24 @@ export default function BoardsMain() {
       boardService.deleteBoard(boardId);
       loadBoards();
     },
-    [loadBoards],
+    [loadBoards]
   );
 
   return (
     <View style={sharedStyles.container}>
+      {/* Put the + in the NAV HEADER (top-right) */}
+      <Stack.Screen
+        options={{
+          headerRight: ({ tintColor }) => (
+            <HeaderAddButton
+              onPress={() => addRef.current?.open()}
+              accessibilityLabel="Add board"
+              color={tintColor ?? "#111"}
+            />
+          ),
+        }}
+      />
+
       <ScrollView showsVerticalScrollIndicator={false}>
         <Text style={sharedStyles.title}>Boards</Text>
 
@@ -78,7 +95,8 @@ export default function BoardsMain() {
           ))
         )}
 
-        <AddButton accessibilityLabel="Add board">
+        {/* This owns the modal; the header + simply calls ref.open() */}
+        <AddButton ref={addRef} accessibilityLabel="Add board">
           <BoardForm onCreate={handleCreateBoard} />
         </AddButton>
       </ScrollView>

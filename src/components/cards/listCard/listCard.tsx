@@ -1,9 +1,5 @@
 import { listService } from "@/src/services/listService";
-import {
-  taskService,
-  orderTasks,
-  applyToggleToEnd,
-} from "@/src/services/taskService";
+import { taskService,  orderTasks,  applyToggleToEnd} from "@/src/services/taskService";
 import { List } from "@/src/types/list";
 import { useRouter } from "expo-router";
 import React, { useCallback, useEffect, useState } from "react";

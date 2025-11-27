@@ -107,4 +107,12 @@ export const taskService = {
     dataService.setTasks(filteredTasks);
     return true;
   },
+  /** Move a task to another list (can be a list in another board). */
+  moveTask(taskId: number, targetListId: number) {
+    const task = this.getTaskById(taskId);
+    if (!task) return null;
+    if (task.listId === targetListId) return task; // no-op
+    return this.updateTask(taskId, { listId: targetListId, isFinished: false }); 
+    // ^ optional: reset completion on move; remove if you want to keep it
+  },
 };
