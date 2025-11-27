@@ -1,10 +1,10 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { View, Text, ScrollView, Pressable } from "react-native";
 import seed from "@/data/data.json";
-import NavBanner from "@/src/components/navbanner";
 import BoardCard, { Board } from "@/src/components/boardCard";
 
 export default function BoardsMain() {
+  // State to hold boards
   const [boards, setBoards] = useState<Board[]>([]);
 
   useEffect(() => {
@@ -46,7 +46,6 @@ export default function BoardsMain() {
         </Pressable>
       </ScrollView>
 
-      <NavBanner onBackPress={undefined} onAddPress={() => console.log("Add board")} />
     </View>
   );
 }
