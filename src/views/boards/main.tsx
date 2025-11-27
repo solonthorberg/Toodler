@@ -1,4 +1,4 @@
-import AddButton from "@/src/components/buttons/AddButton";
+import AddButton from "@/src/components/buttons/addButton";
 import BoardCard from "@/src/components/cards/boardCard/boardCard";
 import BoardForm from "@/src/components/forms/boardForm";
 import { boardService } from "@/src/services/boardService";
