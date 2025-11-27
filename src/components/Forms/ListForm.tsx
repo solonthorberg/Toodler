@@ -1,15 +1,12 @@
 import React, { useState } from "react";
 import { Alert, Pressable, Text, TextInput, View } from "react-native";
+import { DEFAULT_COLOR, PALETTE } from "../../styles/colors";
 import styles from "./styles";
-import { PALETTE, DEFAULT_COLOR } from "../../styles/colors"
-
-
 
 const NONE = "__NONE__" as const;
 
 // Light gray default (slightly darker than white so it stands out)
 // tweak if you want lighter/darker: "#F3F4F6" (lighter) or "#D1D5DB" (darker)
-
 
 interface ListFormProps {
   boardId: number;
@@ -17,7 +14,11 @@ interface ListFormProps {
   onClose?: () => void;
 }
 
-export default function ListForm({ boardId, onCreate, onClose }: ListFormProps) {
+export default function ListForm({
+  boardId,
+  onCreate,
+  onClose,
+}: ListFormProps) {
   const [name, setName] = useState("");
   const [color, setColor] = useState<string | typeof NONE>(""); // can be hex string or NONE
   const [loading, setLoading] = useState(false);
@@ -35,7 +36,10 @@ export default function ListForm({ boardId, onCreate, onClose }: ListFormProps) 
         boardId,
         name: name.trim(),
         // If "No color" chosen -> "", otherwise if nothing chosen -> light gray default
-        color: color === NONE ? DEFAULT_COLOR : (String(color).trim() || DEFAULT_COLOR),
+        color:
+          color === NONE
+            ? DEFAULT_COLOR
+            : String(color).trim() || DEFAULT_COLOR,
       };
 
       onCreate(payload);
@@ -87,7 +91,10 @@ export default function ListForm({ boardId, onCreate, onClose }: ListFormProps) 
                 onPress={() => setColor(c)}
                 accessibilityRole="button"
                 accessibilityLabel={`Choose color ${c}`}
-                style={[styles.swatchWrap, selected && styles.swatchWrapSelected]}
+                style={[
+                  styles.swatchWrap,
+                  selected && styles.swatchWrapSelected,
+                ]}
                 disabled={loading}
               >
                 <View style={[styles.swatch, { backgroundColor: c }]} />
@@ -101,7 +108,10 @@ export default function ListForm({ boardId, onCreate, onClose }: ListFormProps) 
             onPress={() => setColor(NONE)}
             accessibilityRole="button"
             accessibilityLabel="No color"
-            style={[styles.swatchWrap, color === NONE && styles.swatchWrapSelected]}
+            style={[
+              styles.swatchWrap,
+              color === NONE && styles.swatchWrapSelected,
+            ]}
             disabled={loading}
           >
             <View style={styles.noneSwatch}>

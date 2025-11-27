@@ -1,5 +1,5 @@
-import AddButton from "@/src/components/Button/AddButton";
-import TaskForm from "@/src/components/Forms/TaskForm";
+import AddButton from "@/src/components/button/addButton";
+import TaskForm from "@/src/components/forms/taskForm";
 import TaskCard from "@/src/components/taskCard/taskCard";
 import { listService } from "@/src/services/listService";
 import { taskService } from "@/src/services/taskService";
