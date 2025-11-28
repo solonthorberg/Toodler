@@ -4,6 +4,7 @@ import ListCard from "@/src/components/cards/listCard/listCard";
 import ListForm from "@/src/components/forms/listForm";
 import { boardService } from "@/src/services/boardService";
 import { listService } from "@/src/services/listService";
+import { taskService } from "@/src/services/taskService";
 import { List } from "@/src/types/list";
 import sharedStyles from "@/src/views/styles";
 
@@ -20,6 +21,10 @@ export default function ListsMain() {
   const [addModalOpen, setAddModalOpen] = useState(false);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [selectedList, setSelectedList] = useState<List | null>(null);
+
+  const [listBoxes, setListBoxes] = useState<Record<number, any>>({});
+  const [originalList, setOriginalList] = useState<number | null>(null);
+  const [scrollEnabled, setScrollEnabled] = useState(true);
 
   const currentBoard = boardService.getBoardById(id);
 
@@ -103,8 +108,44 @@ export default function ListsMain() {
     loadListsForBoard();
   }, [loadListsForBoard]);
 
+  const handleMeasureList = (listId: number, layout: any) => {
+    setListBoxes((prev) => ({ ...prev, [listId]: layout }));
+  };
+
+  const getTargetList = (x: number, y: number): number | null => {
+    for (const listId in listBoxes) {
+      const box = listBoxes[listId];
+      if (
+        x >= box.x &&
+        x <= box.x + box.width &&
+        y >= box.y &&
+        y <= box.y + box.height
+      ) {
+        return Number(listId);
+      }
+    }
+    return null;
+  };
+
+  const handleDragStart = (task: any) => {
+    setOriginalList(task.listId);
+    setScrollEnabled(false);
+  };
+
+  const handleDragMove = (x: number, y: number) => {};
+
+  const handleDragEnd = (taskId: number, x: number, y: number) => {
+    const targetList = getTargetList(x, y);
+    if (targetList && targetList !== originalList) {
+      taskService.updateTask(taskId, { listId: targetList });
+    }
+    setScrollEnabled(true);
+    loadListsForBoard();
+    setRefreshKey((prev) => prev + 1);
+  };
+
   return (
-    <View style={sharedStyles.container}>
+    <View style={[sharedStyles.container, { overflow: "visible" }]}>
       <Stack.Screen
         options={{
           headerRight: () => (
@@ -113,7 +154,11 @@ export default function ListsMain() {
         }}
       />
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingBottom: 300 }}
+        scrollEnabled={scrollEnabled}
+      >
         <Text style={sharedStyles.subtitle}>
           {currentBoard?.name ?? "Lists"}
         </Text>
@@ -131,6 +176,10 @@ export default function ListsMain() {
               list={list}
               onListDeleted={handleListDeleted}
               onUpdate={openUpdateModal}
+              onMeasureList={handleMeasureList}
+              onDragStart={handleDragStart}
+              onDragMove={handleDragMove}
+              onDragEnd={handleDragEnd}
             />
           ))
         )}

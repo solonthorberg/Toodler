@@ -123,4 +123,5 @@ You can start developing by editing the files inside the **app** directory. This
 ---
 
 ## Known Issues
-   - Edit button for tasks in the list screen does not work.
+   - Drag and drop feature for tasks in the list screen is a bit finicky/sensitive
+   - When task names are long they go through the edit and delete buttons

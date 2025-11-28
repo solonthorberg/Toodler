@@ -63,9 +63,14 @@ export default StyleSheet.create({
     color: "#777",
     marginTop: 4,
   },
+
   buttonContainer: {
+    position: "absolute",
+    top: 10,
+    right: 12,
     flexDirection: "row",
-    gap: 6,
+    gap: 12,
+    zIndex: 1,
   },
 
   actionButton: {
