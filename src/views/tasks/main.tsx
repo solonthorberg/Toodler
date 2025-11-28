@@ -15,7 +15,7 @@ import { Stack, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Modal, Pressable, ScrollView, Text, View } from "react-native";
 
-import HeaderAddButton from "@/src/components/buttons/headerAddButton2";
+import HeaderAddButton from "@/src/components/buttons/headerAddButton";
 import AddStyles from "@/src/components/buttons/styles";
 import styles from "./styles";
 
