@@ -18,7 +18,7 @@ export const applyToggleToEnd = (list: Task[], taskId: number) => {
   const prevUndoneCount = list.filter((t) => !t.isFinished).length;
 
   const flipped = list.map((t) =>
-    t.id === taskId ? { ...t, isFinished: !t.isFinished } : t
+    t.id === taskId ? { ...t, isFinished: !t.isFinished } : t,
   );
 
   let { undone, done } = orderTasks(flipped);
@@ -97,7 +97,7 @@ export const taskService = {
   moveTask(taskId: number, targetListId: number): Task | null {
     const task = this.getTaskById(taskId);
     if (!task) return null;
-    if (task.listId === targetListId) return task; 
+    if (task.listId === targetListId) return task;
     // Preserve isFinished; only change the listId
     return this.updateTask(taskId, { listId: targetListId });
   },

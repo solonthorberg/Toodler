@@ -7,37 +7,47 @@ import styles from "./styles";
 
 type Props = {
   currentListId: number;
-  taskName?: string;                     
+  taskName?: string;
   onMove: (targetListId: number) => void;
   onClose: () => void;
 };
 
-export default function TaskMoveCard({ currentListId, taskName, onMove, onClose }: Props) {
+export default function TaskMoveCard({
+  currentListId,
+  taskName,
+  onMove,
+  onClose,
+}: Props) {
   const currentList = listService.getListById(currentListId);
   const currentBoardId = currentList?.boardId ?? null;
 
   const otherBoards = useMemo(() => {
     const all = boardService.getBoards();
-    return currentBoardId == null ? all : all.filter((b) => b.id !== currentBoardId);
+    return currentBoardId == null
+      ? all
+      : all.filter((b) => b.id !== currentBoardId);
   }, [currentBoardId]);
 
   const [selectedBoardId, setSelectedBoardId] = useState<number | null>(
-    otherBoards.length > 0 ? otherBoards[0].id : null
+    otherBoards.length > 0 ? otherBoards[0].id : null,
   );
   const [selectedListId, setSelectedListId] = useState<number | null>(null);
 
   const listsForBoard: List[] = useMemo(() => {
-    return selectedBoardId != null ? listService.getListsByBoardId(selectedBoardId) : [];
+    return selectedBoardId != null
+      ? listService.getListsByBoardId(selectedBoardId)
+      : [];
   }, [selectedBoardId]);
 
   const canMove = selectedListId != null && selectedListId !== currentListId;
 
-  const displayName =
-    (taskName?.trim().length ? taskName!.trim() : "Task").slice(0, 60);
+  const displayName = (
+    taskName?.trim().length ? taskName!.trim() : "Task"
+  ).slice(0, 60);
 
   return (
     <View style={styles.card}>
-      <Text style={styles.title}>Move: {displayName}</Text>   
+      <Text style={styles.title}>Move: {displayName}</Text>
 
       {/* === BOARDS box (same look as lists) === */}
       <View style={[styles.inputBox, styles.box]}>
@@ -60,7 +70,7 @@ export default function TaskMoveCard({ currentListId, taskName, onMove, onClose 
                     setSelectedBoardId(b.id);
                     setSelectedListId(null);
                   }}
-                  style={[styles.listRow, selected && styles.listRowSelected]}  
+                  style={[styles.listRow, selected && styles.listRowSelected]}
                 >
                   <View style={[styles.dot, { backgroundColor: "#bbb" }]} />
                   <Text style={styles.listText}>{b.name}</Text>
@@ -82,7 +92,7 @@ export default function TaskMoveCard({ currentListId, taskName, onMove, onClose 
         ) : (
           <ScrollView
             style={styles.scroll}
-            contentContainerStyle={styles.listCol}  
+            contentContainerStyle={styles.listCol}
             showsVerticalScrollIndicator={false}
           >
             {listsForBoard.map((l) => {
@@ -93,7 +103,9 @@ export default function TaskMoveCard({ currentListId, taskName, onMove, onClose 
                   onPress={() => setSelectedListId(l.id)}
                   style={[styles.listRow, selected && styles.listRowSelected]}
                 >
-                  <View style={[styles.dot, { backgroundColor: l.color ?? "#ddd" }]} />
+                  <View
+                    style={[styles.dot, { backgroundColor: l.color ?? "#ddd" }]}
+                  />
                   <Text style={styles.listText}>{l.name}</Text>
                 </Pressable>
               );
