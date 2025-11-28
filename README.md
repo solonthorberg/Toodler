@@ -12,8 +12,9 @@
    - Users can create/modify/delete boards. 
    - For each board users can create/modify/delete lists. 
    - For each list users can create/modify/delete and toggle marked as complete button for tasks.
-   - Users can only move tasks between lists.
-   - When a task is marked as complete, it automatically moves to the bottom of the list
+   - Users can only move tasks between lists via drag and drop.
+   - When a task is marked as complete, it automatically moves to the bottom of the list.
+   - When holding down a task in the task screen you can move a task between lists and boards.
   
 ## Setup Instructions
 ### Prerequisites:
