@@ -1,13 +1,13 @@
+import { Ionicons } from "@expo/vector-icons";
 import React from "react";
 import { Pressable, StyleSheet, ViewStyle } from "react-native";
-import { Ionicons } from "@expo/vector-icons"; 
 
 type Props = {
   onPress: () => void;
   accessibilityLabel?: string;
   style?: ViewStyle;
-  color?: string;  
-  size?: number;     
+  color?: string;
+  size?: number;
 };
 
 export default function HeaderAddButton({
