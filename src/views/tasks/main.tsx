@@ -1,7 +1,7 @@
 import AddButton from "@/src/components/buttons/addButton";
 import HeaderAddButton from "@/src/components/buttons/headerAddButton";
 import TaskCard from "@/src/components/cards/taskCard/taskCard";
-import TaskMoveCard from "@/src/components/cards/taskMoveCard/taskMoveCards";
+import TaskMoveCard from "@/src/components/cards/taskMoveCards/taskMoveCards";
 import TaskForm from "@/src/components/forms/taskForm";
 
 import { listService } from "@/src/services/listService";
