@@ -9,11 +9,12 @@ export default StyleSheet.create({
     padding: 16,
     flex: 1,
   },
-  title: { 
-    fontSize: 20, 
-    fontWeight: "700", 
-    textAlign: "center", 
-    marginBottom: 8 },
+  title: {
+    fontSize: 20,
+    fontWeight: "700",
+    textAlign: "center",
+    marginBottom: 8,
+  },
 
   // Matches your "New List" input look
   box: {
@@ -53,11 +54,12 @@ export default StyleSheet.create({
   dot: { width: 10, height: 10, borderRadius: 5, marginRight: 8 },
 
   // Actions
-  actions: { 
-    flexDirection: "row", 
-    justifyContent: "flex-end", 
-    marginTop: 12, 
-    gap: 8 },
+  actions: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    marginTop: 12,
+    gap: 8,
+  },
   btn: {
     paddingHorizontal: 14,
     paddingVertical: 10,

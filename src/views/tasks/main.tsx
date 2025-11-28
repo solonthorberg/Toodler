@@ -1,19 +1,29 @@
 import HeaderAddButton from "@/src/components/buttons/HeaderAddButton";
-import AddButton, { AddButtonHandle } from "@/src/components/buttons/addButton"; 
+import AddButton, { AddButtonHandle } from "@/src/components/buttons/addButton";
 import TaskCard from "@/src/components/cards/taskCard/taskCard";
-import TaskForm from "@/src/components/forms/taskForm";                         
+import TaskForm from "@/src/components/forms/taskForm";
 import TaskMoveCard from "@/src/components/cards/TaskMoveCard/TaskMoveCard";
 
 import { listService } from "@/src/services/listService";
-import { taskService, orderTasks, applyToggleToEnd } from "@/src/services/taskService";
+import {
+  taskService,
+  orderTasks,
+  applyToggleToEnd,
+} from "@/src/services/taskService";
 import { Task } from "@/src/types/task";
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Modal, Pressable, ScrollView, Text, View } from "react-native";
 import { Stack, useLocalSearchParams } from "expo-router";
 
-import styles from "./styles";                           
-import AddStyles from "@/src/components/buttons/styles"; 
+import styles from "./styles";
+import AddStyles from "@/src/components/buttons/styles";
 
 // Add alpha to a 6-digit hex (e.g. "#ff0000" + 0.14 → "#ff000023")
 function withAlpha(hex: string, alpha: number) {
@@ -66,7 +76,7 @@ export default function TasksMain() {
         const newTask = taskService.addTask(
           numericListId,
           payload.name,
-          payload.description
+          payload.description,
         );
         // append to END of undone group
         setTasks((prev) => {
@@ -78,7 +88,7 @@ export default function TasksMain() {
         console.error("Error creating task:", e);
       }
     },
-    [numericListId]
+    [numericListId],
   );
 
   // UPDATE (from main)
@@ -90,7 +100,7 @@ export default function TasksMain() {
         setUpdateModalOpen(true);
       }
     },
-    [tasks]
+    [tasks],
   );
 
   const closeUpdateModal = useCallback(() => {
@@ -114,7 +124,7 @@ export default function TasksMain() {
         console.error("Error updating task:", e);
       }
     },
-    [selectedTask, loadTasksForList, closeUpdateModal]
+    [selectedTask, loadTasksForList, closeUpdateModal],
   );
 
   // TOGGLE + DELETE (shared behavior)
@@ -138,7 +148,7 @@ export default function TasksMain() {
   const handleMoveToList = (targetListId: number) => {
     if (movingTaskId == null) return;
     taskService.moveTask(movingTaskId, targetListId);
-    loadTasksForList(); 
+    loadTasksForList();
     setMoveOpen(false);
     setMovingTaskId(null);
   };
@@ -182,8 +192,8 @@ export default function TasksMain() {
               task={task}
               onToggleComplete={handleToggleComplete}
               onDelete={handleDeleteTask}
-              onUpdate={openUpdateModal}   
-              onLongPress={handleLongPressTask} 
+              onUpdate={openUpdateModal}
+              onLongPress={handleLongPressTask}
             />
           ))
         )}
@@ -222,7 +232,10 @@ export default function TasksMain() {
         transparent
         onRequestClose={() => setMoveOpen(false)}
       >
-        <Pressable style={AddStyles.backdrop} onPress={() => setMoveOpen(false)}>
+        <Pressable
+          style={AddStyles.backdrop}
+          onPress={() => setMoveOpen(false)}
+        >
           <Pressable
             style={[AddStyles.sheet, { height: "60%" }]}
             onPress={(e) => e.stopPropagation()}

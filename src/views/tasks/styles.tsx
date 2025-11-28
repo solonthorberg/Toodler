@@ -20,7 +20,7 @@ export default StyleSheet.create({
 
   // scroll content spacing (creates the gap under the title)
   content: {
-    paddingTop: 16,     // <-- space between title bar and first task
+    paddingTop: 16, // <-- space between title bar and first task
     paddingHorizontal: 16,
     paddingBottom: 24,
   },
@@ -36,5 +36,3 @@ export default StyleSheet.create({
     fontSize: 16,
   },
 });
-
-

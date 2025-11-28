@@ -1,7 +1,7 @@
 import HeaderAddButton from "@/src/components/buttons/HeaderAddButton";
-import AddButton, { AddButtonHandle } from "@/src/components/buttons/addButton"; 
+import AddButton, { AddButtonHandle } from "@/src/components/buttons/addButton";
 import BoardCard from "@/src/components/cards/boardCard/boardCard";
-import BoardForm from "@/src/components/forms/boardForm";                     
+import BoardForm from "@/src/components/forms/boardForm";
 import { boardService } from "@/src/services/boardService";
 import { Board } from "@/src/types/board";
 import sharedStyles from "@/src/views/styles";
@@ -20,7 +20,7 @@ export default function BoardsMain() {
   const [boards, setBoards] = useState<Board[]>([]);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [selectedBoard, setSelectedBoard] = useState<Board | null>(null);
-  const addRef = useRef<AddButtonHandle>(null); 
+  const addRef = useRef<AddButtonHandle>(null);
 
   const loadBoards = useCallback(() => {
     try {
@@ -131,7 +131,7 @@ export default function BoardsMain() {
               key={board.id.toString()}
               board={{ ...board, description: board.description ?? "" }}
               onDelete={handleDeleteBoard}
-              onUpdate={openUpdateModal}  
+              onUpdate={openUpdateModal}
             />
           ))
         )}
