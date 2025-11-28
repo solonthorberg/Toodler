@@ -1,12 +1,12 @@
 // src/components/buttons/AddButton.tsx
 import { Ionicons } from "@expo/vector-icons";
 import React, {
+  ReactNode,
+  cloneElement,
   forwardRef,
+  isValidElement,
   useImperativeHandle,
   useState,
-  ReactNode,
-  isValidElement,
-  cloneElement,
 } from "react";
 import { Modal, Pressable, ScrollView } from "react-native";
 import styles from "./styles";
@@ -17,7 +17,7 @@ export type AddButtonHandle = {
 };
 
 type AddButtonProps = {
-  children: ReactNode;               // backward-compatible: any node
+  children: ReactNode; // backward-compatible: any node
   accessibilityLabel?: string;
 };
 
@@ -55,7 +55,10 @@ const AddButton = forwardRef<AddButtonHandle, AddButtonProps>(
           onRequestClose={handleClose}
         >
           <Pressable style={styles.backdrop} onPress={handleClose}>
-            <Pressable style={styles.sheet} onPress={(e) => e.stopPropagation()}>
+            <Pressable
+              style={styles.sheet}
+              onPress={(e) => e.stopPropagation()}
+            >
               <ScrollView
                 showsVerticalScrollIndicator={false}
                 keyboardShouldPersistTaps="handled"
@@ -68,7 +71,7 @@ const AddButton = forwardRef<AddButtonHandle, AddButtonProps>(
         </Modal>
       </>
     );
-  }
+  },
 );
 
 export default AddButton;

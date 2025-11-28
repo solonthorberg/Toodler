@@ -1,7 +1,7 @@
-import AddButton, { AddButtonHandle } from "@/src/components/buttons/addButton";
+import AddButton from "@/src/components/buttons/addButton";
 import HeaderAddButton from "@/src/components/buttons/headerAddButton";
-import TaskCard from "@/src/components/cards/taskCard/taskCard";
 import TaskMoveCard from "@/src/components/cards/TaskMoveCard/TaskMoveCard";
+import TaskCard from "@/src/components/cards/taskCard/taskCard";
 import TaskForm from "@/src/components/forms/taskForm";
 
 import { listService } from "@/src/services/listService";
@@ -13,19 +13,12 @@ import {
 import { Task } from "@/src/types/task";
 
 import { Stack, useLocalSearchParams } from "expo-router";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Modal, Pressable, ScrollView, Text, View } from "react-native";
 
 import AddStyles from "@/src/components/buttons/styles";
 import styles from "./styles";
 
-// Add alpha to a 6-digit hex (e.g. "#ff0000" + 0.14 → "#ff000023")
 function withAlpha(hex: string, alpha: number) {
   const a = Math.max(0, Math.min(1, alpha));
   const to2 = (n: number) => n.toString(16).padStart(2, "0");
@@ -36,26 +29,22 @@ function withAlpha(hex: string, alpha: number) {
 
 export default function TasksMain() {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [addModalOpen, setAddModalOpen] = useState(false);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
 
-  // Move Task modal (your addition)
   const [moveOpen, setMoveOpen] = useState(false);
   const [movingTaskId, setMovingTaskId] = useState<number | null>(null);
   const [movingTaskName, setMovingTaskName] = useState<string>("");
-
-  const addRef = useRef<AddButtonHandle>(null);
 
   const { listId } = useLocalSearchParams();
   const numericListId = Number(listId);
 
   const currentList = listService.getListById(numericListId);
 
-  // Derive page colors from the list color (your UI)
   const solid = currentList?.color ?? "#E5E7EB";
   const pageBg = useMemo(() => withAlpha(solid, 0.14), [solid]);
 
-  // LOAD
   const loadTasksForList = useCallback(() => {
     try {
       const data = taskService.getTasksByListId(numericListId);
@@ -69,7 +58,6 @@ export default function TasksMain() {
     if (!isNaN(numericListId)) loadTasksForList();
   }, [numericListId, loadTasksForList]);
 
-  // CREATE
   const handleCreateTask = useCallback(
     (payload: { name: string; description: string }) => {
       try {
@@ -78,12 +66,12 @@ export default function TasksMain() {
           payload.name,
           payload.description,
         );
-        // append to END of undone group
         setTasks((prev) => {
           if (prev.some((t) => t.id === newTask.id)) return prev;
           const { undone, done } = orderTasks(prev);
           return [...undone, { ...newTask, isFinished: false }, ...done];
         });
+        setAddModalOpen(false);
       } catch (e) {
         console.error("Error creating task:", e);
       }
@@ -91,7 +79,6 @@ export default function TasksMain() {
     [numericListId],
   );
 
-  // UPDATE (from main)
   const openUpdateModal = useCallback(
     (taskId: number) => {
       const task = tasks.find((t) => t.id === taskId);
@@ -127,7 +114,6 @@ export default function TasksMain() {
     [selectedTask, loadTasksForList, closeUpdateModal],
   );
 
-  // TOGGLE + DELETE (shared behavior)
   const handleToggleComplete = (taskId: number) => {
     taskService.toggleTaskCompletion(taskId);
     setTasks((prev) => applyToggleToEnd(prev, taskId));
@@ -138,7 +124,6 @@ export default function TasksMain() {
     setTasks((prev) => prev.filter((t) => t.id !== taskId));
   };
 
-  // MOVE (your long-press modal)
   const handleLongPressTask = (task: Task) => {
     setMovingTaskId(task.id);
     setMovingTaskName(task.name);
@@ -155,20 +140,14 @@ export default function TasksMain() {
 
   return (
     <View style={[styles.container, { backgroundColor: pageBg }]}>
-      {/* Header "+" opens the same bottom AddButton via ref */}
       <Stack.Screen
         options={{
-          headerRight: ({ tintColor }) => (
-            <HeaderAddButton
-              onPress={() => addRef.current?.open()}
-              accessibilityLabel="Add task"
-              color={tintColor ?? "#111"}
-            />
+          headerRight: () => (
+            <HeaderAddButton onPress={() => setAddModalOpen(true)} />
           ),
         }}
       />
 
-      {/* Colored header bar with the list name (your UI) */}
       <View style={[styles.headerBar, { backgroundColor: solid }]}>
         <Text style={styles.headerTitle}>
           {currentList?.name ?? `Tasks (List ${numericListId})`}
@@ -198,13 +177,28 @@ export default function TasksMain() {
           ))
         )}
 
-        {/* Footer +; header + uses ref to open the same modal */}
-        <AddButton ref={addRef} accessibilityLabel="Add task">
-          <TaskForm onCreate={handleCreateTask} listId={numericListId} />
-        </AddButton>
+        <AddButton onPress={() => setAddModalOpen(true)} />
       </ScrollView>
 
-      {/* Update Task modal (from main) */}
+      <Modal
+        visible={addModalOpen}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setAddModalOpen(false)}
+      >
+        <View style={AddStyles.backdrop}>
+          <View style={AddStyles.sheet}>
+            <View style={AddStyles.scrollContent}>
+              <TaskForm
+                onCreate={handleCreateTask}
+                listId={numericListId}
+                onClose={() => setAddModalOpen(false)}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       <Modal
         visible={updateModalOpen}
         transparent
@@ -225,7 +219,6 @@ export default function TasksMain() {
         </View>
       </Modal>
 
-      {/* Move Task modal (your addition) */}
       <Modal
         visible={moveOpen}
         animationType="slide"
