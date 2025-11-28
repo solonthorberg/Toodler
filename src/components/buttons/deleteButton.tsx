@@ -11,7 +11,7 @@ export default function DeleteButton({ onPress, style }: Props) {
   return (
     <Pressable
       onPress={(e) => {
-        e.stopPropagation();
+        e.stopPropagation(); // Note: Prevents navigation to the next screen because the delete button is on a clickable card
         onPress?.();
       }}
       style={[styles.deleteButton, style]}

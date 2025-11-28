@@ -6,6 +6,7 @@
    - Technologies Used
    - Development Platform
    - Project Structure / Info
+   - Known Issues
 
 ## Feature list
    - Users can create/modify/delete boards. 
@@ -87,13 +88,13 @@ You can start developing by editing the files inside the **app** directory. This
 │   │   ├── tasks/
 ```
 
-## app/
+### app/
    All routes are registered in App. Each route is has a view (Screen) in the views folder.
    *_layout.tsx* file has a navigation bar that displays which screen you are on and has a automatic back button.
 
-## components/
+### components/
 
-### buttons/
+#### buttons/
    All buttons are located here. For addButton you add the fragment around a form fragment.
    ```Bash
    <AddButton accessibilityLabel="Add board">
@@ -101,23 +102,25 @@ You can start developing by editing the files inside the **app** directory. This
    </AddButton>
    ```
 
-### forms/
+#### forms/
    All forms for creating or modifying are here. If you need a form you can create one here.
 
-### cards/
+#### cards/
    Here you can find all cards for boards, lists and tasks.
 
-## services/
+### services/
    *dataService.tsx* transfers data from *data.json* into new arrays in memory. DataService object has methods for accessing and updating data, that is used by the other services. Those Services have some basic CRUD operations. Deletion has a cascading effect; if a board is deleted, the lists and tasks associated are also deleted. When creating a new item, the id created is auto incremented based on highest existing id.
 
-## styles/
+### styles/
    Here you can find the color palettes.
 
-## types/
+### types/
    All interfaces for board, list, and task.
 
-## views/
+### views/
    All views are located here.
 
+---
 
-   
+## Known Issues
+   - Edit button for tasks in the list screen does not work.

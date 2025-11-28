@@ -1,24 +1,17 @@
-// src/services/taskService.ts
-import { dataService } from "./dataService";
 import type { Task } from "@/src/types/task";
+import { dataService } from "./dataService";
 
-/** Split tasks into undone/done and return all three forms */
 export const orderTasks = (list: Task[]) => {
   const undone = list.filter((t) => !t.isFinished);
   const done = list.filter((t) => t.isFinished);
   return { undone, done, merged: [...undone, ...done] };
 };
 
-/**
- * After toggling one task, re-merge so it lands at the END of its new group
- * EXCEPT: if it was the only remaining undone task and becomes done,
- * put it at the FRONT of the done list (so it stays visually in place).
- */
 export const applyToggleToEnd = (list: Task[], taskId: number) => {
   const prevUndoneCount = list.filter((t) => !t.isFinished).length;
 
   const flipped = list.map((t) =>
-    t.id === taskId ? { ...t, isFinished: !t.isFinished } : t
+    t.id === taskId ? { ...t, isFinished: !t.isFinished } : t,
   );
 
   let { undone, done } = orderTasks(flipped);
@@ -93,12 +86,10 @@ export const taskService = {
     return true;
   },
 
-  /** Move a task to another list (board-agnostic). Keeps isFinished as-is. */
   moveTask(taskId: number, targetListId: number): Task | null {
     const task = this.getTaskById(taskId);
     if (!task) return null;
-    if (task.listId === targetListId) return task; 
-    // Preserve isFinished; only change the listId
+    if (task.listId === targetListId) return task;
     return this.updateTask(taskId, { listId: targetListId });
   },
 };

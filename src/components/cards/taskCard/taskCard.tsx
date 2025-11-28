@@ -10,7 +10,7 @@ type Props = {
   onToggleComplete: (taskId: number) => void;
   onDelete: (taskId: number) => void;
   onUpdate?: (taskId: number) => void;
-  onLongPress?: (task: Task) => void;  
+  onLongPress?: (task: Task) => void;
 };
 
 export default function TaskCard({
@@ -18,7 +18,7 @@ export default function TaskCard({
   onToggleComplete,
   onDelete,
   onUpdate,
-  onLongPress, 
+  onLongPress,
 }: Props) {
   const handleUpdate = () => {
     onUpdate?.(task.id);
@@ -29,17 +29,15 @@ export default function TaskCard({
   };
 
   return (
-    // Make the whole card long-pressable (for “Move Task”)
     <Pressable
       style={styles.card}
       onLongPress={onLongPress ? () => onLongPress(task) : undefined}
-      delayLongPress={300}             
+      delayLongPress={300}
     >
       <View style={styles.headerRow}>
         <Pressable
           style={[styles.circle, task.isFinished && styles.circleDone]}
           onPress={() => onToggleComplete(task.id)}
-          accessibilityLabel={task.isFinished ? "Mark as not done" : "Mark as done"}
         >
           {task.isFinished && <Text style={styles.check}>✓</Text>}
         </Pressable>

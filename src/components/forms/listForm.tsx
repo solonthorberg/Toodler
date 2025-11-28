@@ -1,7 +1,7 @@
 import { List } from "@/src/types/list";
 import React, { useState } from "react";
 import { Alert, Pressable, Text, TextInput, View } from "react-native";
-import { DEFAULT_COLOR, PALETTE } from "../../styles/colors";
+import { palette, whiteDefault } from "../../styles/colors";
 import styles from "./styles";
 
 const NONE = "__NONE__" as const;
@@ -43,7 +43,7 @@ export default function ListForm({
       setLoading(true);
 
       const colorValue =
-        color === NONE ? DEFAULT_COLOR : String(color).trim() || DEFAULT_COLOR;
+        color === NONE ? whiteDefault : String(color).trim() || whiteDefault;
 
       if (isUpdateMode) {
         const payload = {
@@ -111,7 +111,7 @@ export default function ListForm({
         <Text style={styles.label}>Color (optional)</Text>
 
         <View style={styles.swatchGrid}>
-          {PALETTE.map((c) => {
+          {palette.map((c) => {
             const selected = color === c;
             return (
               <Pressable

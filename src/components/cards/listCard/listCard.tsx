@@ -6,6 +6,7 @@ import {
   orderTasks,
   taskService,
 } from "@/src/services/taskService";
+import { blackDefault } from "@/src/styles/colors";
 import { List } from "@/src/types/list";
 import { Task } from "@/src/types/task";
 import { useRouter } from "expo-router";
@@ -31,7 +32,7 @@ export default function ListCard({
   const headerBackground = list.color;
   const bodyBackground = headerBackground
     ? `${headerBackground}4D`
-    : "#0000000D";
+    : blackDefault;
 
   const load = useCallback(() => {
     const data = taskService.getTasksByListId(list.id);

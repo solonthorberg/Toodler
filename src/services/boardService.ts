@@ -30,11 +30,6 @@ export const boardService = {
     const boards = dataService.getBoards();
     const boardIndex = boards.findIndex((board) => board.id === id);
 
-    if (boardIndex === -1) {
-      throw new Error(`Board with id ${id} not found`);
-    }
-
-    // Trim string values in updates
     const trimmedUpdates = {
       ...updates,
       ...(updates.name && { name: updates.name.trim() }),
@@ -46,7 +41,6 @@ export const boardService = {
 
     const updatedBoard = { ...boards[boardIndex], ...trimmedUpdates };
 
-    // Create new array instead of mutating
     const updatedBoards = [...boards];
     updatedBoards[boardIndex] = updatedBoard;
 
