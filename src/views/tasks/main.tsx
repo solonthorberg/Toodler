@@ -1,7 +1,6 @@
 import AddButton from "@/src/components/buttons/addButton";
-import HeaderAddButton from "@/src/components/buttons/headerAddButton";
 import TaskCard from "@/src/components/cards/taskCard/taskCard";
-import TaskMoveCard from "@/src/components/cards/taskMoveCards/taskMoveCards";
+import TaskMoveCard from "@/src/components/cards/taskMoveCard/taskMoveCard";
 import TaskForm from "@/src/components/forms/taskForm";
 
 import { listService } from "@/src/services/listService";
@@ -16,7 +15,8 @@ import { Stack, useLocalSearchParams } from "expo-router";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Modal, Pressable, ScrollView, Text, View } from "react-native";
 
-import AddStyles from "@/src/components/buttons/styles";
+import HeaderAddButton from "@/src/components/buttons/headerAddButton";
+import sharedStyles from "@/src/views/styles";
 import styles from "./styles";
 
 function withAlpha(hex: string, alpha: number) {
@@ -186,9 +186,9 @@ export default function TasksMain() {
         animationType="slide"
         onRequestClose={() => setAddModalOpen(false)}
       >
-        <View style={AddStyles.backdrop}>
-          <View style={AddStyles.sheet}>
-            <View style={AddStyles.scrollContent}>
+        <View style={sharedStyles.backdrop}>
+          <View style={sharedStyles.sheet}>
+            <View style={sharedStyles.scrollContent}>
               <TaskForm
                 onCreate={handleCreateTask}
                 listId={numericListId}
@@ -205,9 +205,9 @@ export default function TasksMain() {
         animationType="slide"
         onRequestClose={closeUpdateModal}
       >
-        <View style={AddStyles.backdrop}>
-          <View style={AddStyles.sheet}>
-            <View style={AddStyles.scrollContent}>
+        <View style={sharedStyles.backdrop}>
+          <View style={sharedStyles.sheet}>
+            <View style={sharedStyles.scrollContent}>
               <TaskForm
                 onUpdate={handleUpdateTask}
                 initialValues={selectedTask || undefined}
@@ -226,11 +226,11 @@ export default function TasksMain() {
         onRequestClose={() => setMoveOpen(false)}
       >
         <Pressable
-          style={AddStyles.backdrop}
+          style={sharedStyles.backdrop}
           onPress={() => setMoveOpen(false)}
         >
           <Pressable
-            style={[AddStyles.sheet, { height: "60%" }]}
+            style={[sharedStyles.sheet, { height: "60%" }]}
             onPress={(e) => e.stopPropagation()}
           >
             <TaskMoveCard

@@ -48,4 +48,10 @@ export default StyleSheet.create({
   icon: {
     fontSize: 18,
   },
+  headerButton: {
+    width: 36,
+    height: 36,
+    alignItems: "center",
+    justifyContent: "center",
+  },
 });

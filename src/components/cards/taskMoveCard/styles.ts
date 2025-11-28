@@ -16,7 +16,6 @@ export default StyleSheet.create({
     marginBottom: 8,
   },
 
-  // Matches your "New List" input look
   box: {
     borderWidth: 1,
     borderColor: "#ddd",
@@ -33,12 +32,10 @@ export default StyleSheet.create({
     marginBottom: 8,
   },
 
-  // Scrolling region inside each box
   scroll: {
     maxHeight: 160,
   },
 
-  // Shared vertical list styles for boards & lists
   listCol: { paddingBottom: 4 },
   listRow: {
     flexDirection: "row",
@@ -53,7 +50,6 @@ export default StyleSheet.create({
   listText: { fontSize: 16 },
   dot: { width: 10, height: 10, borderRadius: 5, marginRight: 8 },
 
-  // Actions
   actions: {
     flexDirection: "row",
     justifyContent: "flex-end",

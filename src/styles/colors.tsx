@@ -1,5 +1,4 @@
-// Summer-tinted palette (no auto-defaulting to these)
-export const PALETTE = [
+export const palette = [
   "#FDE047", // sunshine
   "#FBBF24", // golden tangerine
   "#FDBA74", // peach
@@ -15,4 +14,5 @@ export const PALETTE = [
   "#F5E6C8", // sand
 ] as const;
 
-export const DEFAULT_COLOR = "#ffffff";
+export const whiteDefault = "#ffffff";
+export const blackDefault = "#000000";

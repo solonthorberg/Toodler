@@ -1,4 +1,4 @@
-import AddButton, { AddButtonHandle } from "@/src/components/buttons/addButton";
+import AddButton from "@/src/components/buttons/addButton";
 import HeaderAddButton from "@/src/components/buttons/headerAddButton";
 import BoardCard from "@/src/components/cards/boardCard/boardCard";
 import BoardForm from "@/src/components/forms/boardForm";
@@ -7,20 +7,14 @@ import { Board } from "@/src/types/board";
 import sharedStyles from "@/src/views/styles";
 
 import { Stack } from "expo-router";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Modal, ScrollView, Text, View } from "react-native";
 
 export default function BoardsMain() {
   const [boards, setBoards] = useState<Board[]>([]);
+  const [addModalOpen, setAddModalOpen] = useState(false);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [selectedBoard, setSelectedBoard] = useState<Board | null>(null);
-  const addRef = useRef<AddButtonHandle>(null);
 
   const loadBoards = useCallback(() => {
     try {
@@ -51,6 +45,7 @@ export default function BoardsMain() {
       );
 
       setBoards((prev) => [...prev, newBoard]);
+      setAddModalOpen(false);
     } catch (error) {
       console.error("Error creating board:", error);
     }
@@ -64,7 +59,6 @@ export default function BoardsMain() {
     [loadBoards],
   );
 
-  // === Update support (from main) ===
   const openUpdateModal = useCallback(
     (boardId: number) => {
       const board = boards.find((b) => b.id === boardId);
@@ -103,15 +97,10 @@ export default function BoardsMain() {
 
   return (
     <View style={sharedStyles.container}>
-      {/* Header "+" opens the same AddButton modal via ref */}
       <Stack.Screen
         options={{
-          headerRight: ({ tintColor }) => (
-            <HeaderAddButton
-              onPress={() => addRef.current?.open()}
-              accessibilityLabel="Add board"
-              color={tintColor ?? "#111"}
-            />
+          headerRight: () => (
+            <HeaderAddButton onPress={() => setAddModalOpen(true)} />
           ),
         }}
       />
@@ -136,13 +125,27 @@ export default function BoardsMain() {
           ))
         )}
 
-        {/* Footer + owns the modal; header + calls ref.open() */}
-        <AddButton ref={addRef} accessibilityLabel="Add board">
-          <BoardForm onCreate={handleCreateBoard} />
-        </AddButton>
+        <AddButton onPress={() => setAddModalOpen(true)} />
       </ScrollView>
 
-      {/* Update modal (matches main’s structure) */}
+      <Modal
+        visible={addModalOpen}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setAddModalOpen(false)}
+      >
+        <View style={sharedStyles.backdrop}>
+          <View style={sharedStyles.sheet}>
+            <View style={sharedStyles.scrollContent}>
+              <BoardForm
+                onCreate={handleCreateBoard}
+                onClose={() => setAddModalOpen(false)}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       <Modal
         visible={updateModalOpen}
         transparent

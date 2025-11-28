@@ -62,8 +62,10 @@ export default function TaskCard({
     if (onDragStart) {
       onDragStart?.(task);
     }
-    // @ts-ignore
-    position.setOffset(position.__getValue());
+    position.setOffset({
+      x: (position.x as any)._value,
+      y: (position.y as any)._value,
+    });
     position.setValue({ x: 0, y: 0 });
     setScale(1.1, 150);
   };
@@ -112,12 +114,9 @@ export default function TaskCard({
   ];
 
   return (
-    // Make the whole card long-pressable (for “Move Task”)
     <Pressable
-      //style={styles.card}
       onLongPress={() => {
         if (enableDrag) {
-          //startDrag();
           onDragStart?.(task);
         } else if (onLongPress) {
           onLongPress(task);
@@ -141,12 +140,14 @@ export default function TaskCard({
           </Pressable>
 
           <Text style={styles.title}>{task.name}</Text>
+        </View>
 
+        {onUpdate && (
           <View style={styles.buttonContainer}>
             <UpdateButton onPress={handleUpdate} style={styles.actionButton} />
             <DeleteButton onPress={handleDelete} style={styles.actionButton} />
           </View>
-        </View>
+        )}
 
         <View style={styles.separator} />
         {!!task.description && (

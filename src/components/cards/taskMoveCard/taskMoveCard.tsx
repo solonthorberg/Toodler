@@ -49,7 +49,6 @@ export default function TaskMoveCard({
     <View style={styles.card}>
       <Text style={styles.title}>Move: {displayName}</Text>
 
-      {/* === BOARDS box (same look as lists) === */}
       <View style={[styles.inputBox, styles.box]}>
         <Text style={styles.label}>Choose board</Text>
 
@@ -81,7 +80,6 @@ export default function TaskMoveCard({
         )}
       </View>
 
-      {/* === LISTS box === */}
       <View style={[styles.inputBox, styles.box]}>
         <Text style={styles.label}>Choose list</Text>
 
@@ -114,7 +112,6 @@ export default function TaskMoveCard({
         )}
       </View>
 
-      {/* Actions */}
       <View style={styles.actions}>
         <Pressable onPress={onClose} style={[styles.btn, styles.ghost]}>
           <Text style={styles.btnText}>Cancel</Text>

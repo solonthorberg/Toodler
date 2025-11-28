@@ -1,3 +1,4 @@
+import { whiteDefault } from "@/src/styles/colors";
 import { Board } from "@/src/types/board";
 import { useRouter } from "expo-router";
 import React, { useState } from "react";
@@ -46,7 +47,7 @@ export default function BoardCard({
           onError={() => setImgOk(false)}
         />
       ) : (
-        <View style={[styles.banner, { backgroundColor: "#fff" }]} />
+        <View style={[styles.banner, { backgroundColor: whiteDefault }]} />
       )}
 
       <UpdateButton

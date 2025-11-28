@@ -1,7 +1,7 @@
-import AddButton, { AddButtonHandle } from "@/src/components/buttons/addButton"; // ← match main's path/casing
+import AddButton from "@/src/components/buttons/addButton";
 import HeaderAddButton from "@/src/components/buttons/headerAddButton";
 import ListCard from "@/src/components/cards/listCard/listCard";
-import ListForm from "@/src/components/forms/listForm"; // ← match main's path/casing
+import ListForm from "@/src/components/forms/listForm";
 import { boardService } from "@/src/services/boardService";
 import { listService } from "@/src/services/listService";
 import { taskService } from "@/src/services/taskService";
@@ -9,8 +9,8 @@ import { List } from "@/src/types/list";
 import sharedStyles from "@/src/views/styles";
 
 import { Stack, useFocusEffect, useLocalSearchParams } from "expo-router";
-import React, { useCallback, useEffect, useRef, useState } from "react";
-import { ScrollView, Text, View } from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
+import { Modal, ScrollView, Text, View } from "react-native";
 
 export default function ListsMain() {
   const { boardId } = useLocalSearchParams();
@@ -18,20 +18,13 @@ export default function ListsMain() {
 
   const [lists, setLists] = useState<List[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
-
-  const [_draggingTask, setDraggingTask] = useState<any | null>(null);
-  const [_dragX, setDragX] = useState(0);
-  const [_dragY, setDragY] = useState(0);
-  const [listBoxes, setListBoxes] = useState<Record<number, any>>({});
-  const [originalList, setOriginalList] = useState<number | null>(null);
-  const [scrollEnabled, setScrollEnabled] = useState(true);
-
-  // === update modal state (from main) ===
+  const [addModalOpen, setAddModalOpen] = useState(false);
   const [updateModalOpen, setUpdateModalOpen] = useState(false);
   const [selectedList, setSelectedList] = useState<List | null>(null);
 
-  // header "+" controls this AddButton via ref
-  const addRef = useRef<AddButtonHandle>(null);
+  const [listBoxes, setListBoxes] = useState<Record<number, any>>({});
+  const [originalList, setOriginalList] = useState<number | null>(null);
+  const [scrollEnabled, setScrollEnabled] = useState(true);
 
   const currentBoard = boardService.getBoardById(id);
 
@@ -68,6 +61,7 @@ export default function ListsMain() {
           const exists = prev.some((l) => l.id === newList.id);
           return exists ? prev : [...prev, newList];
         });
+        setAddModalOpen(false);
       } catch (error) {
         console.error("Error creating list:", error);
       }
@@ -75,7 +69,6 @@ export default function ListsMain() {
     [],
   );
 
-  // === update handlers (from main) ===
   const openUpdateModal = useCallback(
     (listId: number) => {
       const list = lists.find((l) => l.id === listId);
@@ -135,22 +128,17 @@ export default function ListsMain() {
   };
 
   const handleDragStart = (task: any) => {
-    setDraggingTask(task);
     setOriginalList(task.listId);
     setScrollEnabled(false);
   };
 
-  const handleDragMove = (x: number, y: number) => {
-    setDragX(x);
-    setDragY(y);
-  };
+  const handleDragMove = (x: number, y: number) => {};
 
   const handleDragEnd = (taskId: number, x: number, y: number) => {
     const targetList = getTargetList(x, y);
     if (targetList && targetList !== originalList) {
       taskService.updateTask(taskId, { listId: targetList });
     }
-    setDraggingTask(null);
     setScrollEnabled(true);
     loadListsForBoard();
     setRefreshKey((prev) => prev + 1);
@@ -158,15 +146,10 @@ export default function ListsMain() {
 
   return (
     <View style={[sharedStyles.container, { overflow: "visible" }]}>
-      {/* Header + opens the same AddButton modal via ref */}
       <Stack.Screen
         options={{
-          headerRight: ({ tintColor }) => (
-            <HeaderAddButton
-              onPress={() => addRef.current?.open()}
-              accessibilityLabel="Add list"
-              color={tintColor ?? "#111"}
-            />
+          headerRight: () => (
+            <HeaderAddButton onPress={() => setAddModalOpen(true)} />
           ),
         }}
       />
@@ -201,11 +184,47 @@ export default function ListsMain() {
           ))
         )}
 
-        {/* Footer AddButton; header + triggers ref.open() */}
-        <AddButton ref={addRef} accessibilityLabel="Add list">
-          <ListForm onCreate={handleCreateList} boardId={id} />
-        </AddButton>
+        <AddButton onPress={() => setAddModalOpen(true)} />
       </ScrollView>
+
+      <Modal
+        visible={addModalOpen}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setAddModalOpen(false)}
+      >
+        <View style={sharedStyles.backdrop}>
+          <View style={sharedStyles.sheet}>
+            <View style={sharedStyles.scrollContent}>
+              <ListForm
+                onCreate={handleCreateList}
+                boardId={id}
+                onClose={() => setAddModalOpen(false)}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        visible={updateModalOpen}
+        transparent
+        animationType="slide"
+        onRequestClose={closeUpdateModal}
+      >
+        <View style={sharedStyles.backdrop}>
+          <View style={sharedStyles.sheet}>
+            <View style={sharedStyles.scrollContent}>
+              <ListForm
+                onUpdate={handleUpdateList}
+                initialValues={selectedList || undefined}
+                onClose={closeUpdateModal}
+                boardId={id}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
